@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgresport
+      port: 5432
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb-config
+data:
+  init-user-db.sh: |
+    #!/bin/bash
+    set -e
+
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        CREATE DATABASE booksdb;
+    EOSQL
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-data
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: default
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:12
+          resources:
+              requests:
+                memory: "300Mi"
+                cpu: "600m"
+              limits:
+                memory: "600Mi"
+                cpu: "1"
+          ports:
+            - name: postgresport
+              containerPort: 5432
+          env:
+            # - name: POSTGRES_DB
+            #   value: booksdb
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: changeme
+            - name: PGDATA
+              value: /data/postgres
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              name: data
+              subPath: data
+            - mountPath: /docker-entrypoint-initdb.d/
+              name: postgres-initdb
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data
+        - name: postgres-initdb
+          configMap:
+            name: postgres-initdb-config

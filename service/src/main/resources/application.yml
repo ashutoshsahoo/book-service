@@ -1,0 +1,17 @@
+client:  auth-service-url: http://localhost:8085/api/v1/auth
+
+logging:
+  level:
+    com.ashu.practice: DEBUG
+server:  servlet:    context-path: /api/v1
+    
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost/booksdb
+    username: postgres
+    password: changeme
+#  jpa:#    hibernate:#      ddl-auto: validate
+#    show-sql: true
+  flyway:    locations:    - classpath:db/migration/postgresql
+          
+hazelcast:  instance-name: book-service-instance  map-name: book-service  cluster-name: book-service

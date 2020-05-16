@@ -1,0 +1,39 @@
+jwt:
+ audience: myapp
+ issuer: mycompanyname
+ secret: 4ao25ZPL/aC3lqRuDoj9RsuxLq+TtgkSAGkXFQ==jucr3j0SwCaCzNlePozoUIXl
+ token-validity: 18000000 # 5*60*60*1000
+ type: JWT
+
+security:
+  paths:
+#    ignored:
+#     - /h2-console/**
+    permitted:
+    - /auth/**
+  
+server:
+  servlet:
+    context-path: /api/v1
+  port: 8085
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost/postgres
+    username: postgres
+    password: changeme
+#  h2:
+#    console:
+#      enabled: true
+#  jpa:
+#    hibernate:
+#      ddl-auto: validate
+#    show-sql: true
+  flyway:
+    locations:
+    - classpath:db/migration/postgresql
+    
+hazelcast:
+  instance-name: authentication-service-instance
+  map-name: authentication-service
+  cluster-name: auth-service
