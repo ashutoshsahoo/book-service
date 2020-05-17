@@ -1,6 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: hazelcast-auth-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+    - name: hazelcast
+      port: 5701
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: auth-service
   labels:
     app: auth-service
@@ -13,18 +25,6 @@ spec:
   selector:
     app: auth-service
   type: NodePort
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: hazelcast-auth-service
-# spec:
-#   selector:
-#     app: auth-service
-#   ports:
-#     - name: hazelcast
-#       port: 5701
-#   type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -33,7 +33,7 @@ metadata:
   labels:
     app: auth-service
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: auth-service
@@ -45,7 +45,7 @@ spec:
       containers:
         - name: auth-service
           image: ashutoshsahoo/auth-service:1.0.0
-          imagePullPolicy: IfNotPresent
+          # imagePullPolicy: IfNotPresent
           # resources:
           #     requests:
           #       memory: "500Mi"
@@ -56,21 +56,15 @@ spec:
           ports:
             - name: http
               containerPort: 8085
-            # - name: multicast
-            #   containerPort: 5701
+            - name: multicast
+              containerPort: 5701
           env:
-            # - name: HAZELCAST_INSTANCE_NAME
-            #   value: auth-hazelcast-instance
-            # - name: HAZELCAST_MAP_NAME
-            #   value: auth-service
-            # - name: HAZELCAST_CLUSTER_NAME
-            #   value: prod
-            # - name: HAZELCAST_SERVICE_NAME
-            #   value: hhazelcast-auth-service
-            # - name: HAZELCAST_NAMESPACE
-            #   value: default
-            # - name: HAZELCAST_DISCOVERY_TYPE
-            #   value: kubernetes
+            - name: HAZELCAST_SERVICE_NAME
+              value: hazelcast-auth-service
+            - name: HAZELCAST_NAMESPACE
+              value: default
+            - name: HAZELCAST_DISCOVERY_TYPE
+              value: kubernetes
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres-service/postgres
             - name: SPRING_DATASOURCE_USERNAME

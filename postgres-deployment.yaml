@@ -65,8 +65,6 @@ spec:
             - name: postgresport
               containerPort: 5432
           env:
-            # - name: POSTGRES_DB
-            #   value: booksdb
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_PASSWORD

@@ -1,6 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: hazelcast-book-service
+spec:
+  selector:
+    app: book-service
+  ports:
+    - name: hazelcast
+      port: 5701
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: book-service
   labels:
     app: book-service
@@ -12,18 +24,6 @@ spec:
   selector:
     app: book-service
   type: NodePort
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: hazelcast-book-service
-# spec:
-#   selector:
-#     app: book-service
-#   ports:
-#     - name: hazelcast
-#       port: 5701
-#   type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -32,7 +32,7 @@ metadata:
   labels:
     app: book-service
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: book-service
@@ -44,7 +44,7 @@ spec:
       containers:
         - name: book-service
           image: ashutoshsahoo/book-service:1.0.0
-          imagePullPolicy: IfNotPresent
+          # imagePullPolicy: IfNotPresent
           # resources:
           #     requests:
           #       memory: "500Mi"
@@ -55,23 +55,17 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-            # - name: multicast
-            #   containerPort: 5701
+            - name: multicast
+              containerPort: 5701
           env:
             - name: CLIENT_AUTH_SERVICE_URL
               value: http://auth-service/api/v1/auth
-            # - name: HAZELCAST_INSTANCE_NAME
-            #   value: auth-hazelcast-instance
-            # - name: HAZELCAST_MAP_NAME
-            #   value: book-service
-            # - name: HAZELCAST_CLUSTER_NAME
-            #   value: prod
-            # - name: HAZELCAST_SERVICE_NAME
-            #   value: hhazelcast-book-service
-            # - name: HAZELCAST_NAMESPACE
-            #   value: default
-            # - name: HAZELCAST_DISCOVERY_TYPE
-            #   value: kubernetes
+            - name: HAZELCAST_SERVICE_NAME
+              value: hazelcast-book-service
+            - name: HAZELCAST_NAMESPACE
+              value: default
+            - name: HAZELCAST_DISCOVERY_TYPE
+              value: kubernetes
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres-service/booksdb
             - name: SPRING_DATASOURCE_USERNAME

@@ -8,13 +8,16 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.MapConfig;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Configuration
+@Slf4j
 public class HazelcastConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(name = "discovery-type", prefix = "hazelcast", havingValue = "multicast", matchIfMissing = true)
 	public Config hazelCastConfig(HazelcastConfigProperties configProperties) {
-
+		log.debug("Loading multicast configuration");
 		Config config = new Config();
 		config.setClusterName(configProperties.getClusterName());
 		config.setInstanceName(configProperties.getInstanceName());
@@ -27,7 +30,7 @@ public class HazelcastConfiguration {
 	@Bean
 	@ConditionalOnProperty(name = "discovery-type", prefix = "hazelcast", havingValue = "kubernetes")
 	public Config config(HazelcastConfigProperties configProperties) {
-
+		log.debug("Loading kubernetes configuration");
 		Config config = new Config();
 		config.setClusterName(configProperties.getClusterName());
 		config.setInstanceName(configProperties.getInstanceName());

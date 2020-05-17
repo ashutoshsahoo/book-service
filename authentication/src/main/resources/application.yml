@@ -11,27 +11,30 @@ security:
 #     - /h2-console/**
     permitted:
     - /auth/**
-  
+
+logging:
+  level:
+    com.ashu.practice: DEBUG  
 server:
   servlet:
     context-path: /api/v1
   port: 8085
 
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost/postgres
-    username: postgres
-    password: changeme
+#  datasource:
+#    url: jdbc:postgresql://localhost/postgres
+#    username: postgres
+#    password: changeme
 #  h2:
 #    console:
 #      enabled: true
-#  jpa:
+  jpa:
 #    hibernate:
 #      ddl-auto: validate
-#    show-sql: true
+    show-sql: true
   flyway:
     locations:
-    - classpath:db/migration/postgresql
+    - classpath:db/migration/h2
     
 hazelcast:
   instance-name: authentication-service-instance

@@ -6,12 +6,12 @@ logging:
 server:  servlet:    context-path: /api/v1
     
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost/booksdb
-    username: postgres
-    password: changeme
-#  jpa:#    hibernate:#      ddl-auto: validate
-#    show-sql: true
-  flyway:    locations:    - classpath:db/migration/postgresql
+#  datasource:
+#    url: jdbc:postgresql://localhost/booksdb
+#    username: postgres
+#    password: changeme
+  jpa:#    hibernate:#      ddl-auto: validate
+    show-sql: true
+  flyway:    locations:    - classpath:db/migration/h2
           
 hazelcast:  instance-name: book-service-instance  map-name: book-service  cluster-name: book-service
