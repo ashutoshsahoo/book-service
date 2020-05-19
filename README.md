@@ -19,14 +19,6 @@ mvn clean package -DskipTests
 
 ```
 
-## Set kubernetes environment for hazelcast
-
-```sh
-
-kubectl apply rbac.yaml
-
-```
-
 ## Deploy application
 
 ```sh
@@ -62,7 +54,6 @@ service/auth-service             NodePort       10.96.8.95      <none>        80
 service/book-service             NodePort       10.104.33.104   <none>        80:31002/TCP     36s
 service/hazelcast-auth-service   LoadBalancer   10.105.34.134   localhost     5701:30835/TCP   47s
 service/hazelcast-book-service   LoadBalancer   10.96.153.174   localhost     5701:30728/TCP   36s
-service/kubernetes               ClusterIP      10.96.0.1       <none>        443/TCP          3d3h
 service/postgres-service         ClusterIP      10.110.35.193   <none>        5432/TCP         95s
 
 ```
@@ -71,12 +62,23 @@ service/postgres-service         ClusterIP      10.110.35.193   <none>        54
 
 Use the provided postman collection (inside authentication and service directory) to test the application.
 
+## Check database setup
+
+```sh
+
+kubectl apply -f pgadmin4-deployment.yaml
+
+```
+
+Open `http://localhost:3100` in browser and login with `pgadmin@example.org` and `changeme`. Select servers and input password as `changeme`.
+
 ## Clean up system
 
 ```sh
 
 kubectl delete -f service/deployment.yaml
 kubectl delete -f authentication/deployment.yaml
+kubectl delete -f pgadmin4-deployment.yaml
 kubectl delete -f postgres-deployment.yaml
 kubectl delete -f secrets.yaml
 

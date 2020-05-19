@@ -152,7 +152,7 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 	private Set<Role> convertRole(Set<String> strRoles) {
 		Set<Role> roles = new HashSet<>();
 
-		// TODO: support for unlimited roles
+		// TODO: support for arbitrary roles
 		if (strRoles == null) {
 			Role userRole = roleRepository.findByName(RoleType.ROLE_USER).orElseThrow(RoleDoesNotExistException::new);
 			roles.add(userRole);
