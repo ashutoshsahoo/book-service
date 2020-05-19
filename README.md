@@ -2,7 +2,7 @@
 
 Sample project to use spring boot with
 
-- Spring security with JWT
+- Spring security and JWT
 - Spring data jpa
 - flyway
 - postgresql
@@ -31,10 +31,10 @@ kubectl apply rbac.yaml
 
 ```sh
 
-kubetl apply -f secrets.yaml
+kubectl apply -f secrets.yaml
 kubectl apply -f postgres-deployment.yaml
-kubecrl apply -f authentication/deployment.yaml
-kubecrl apply -f service/deployment.yaml
+kubectl apply -f authentication/deployment.yaml
+kubectl apply -f service/deployment.yaml
 
 ```
 
@@ -75,9 +75,9 @@ Use the provided postman collection (inside authentication and service directory
 
 ```sh
 
-kubecrl delete -f service/deployment.yaml
-kubecrl delete -f authentication/deployment.yaml
+kubectl delete -f service/deployment.yaml
+kubectl delete -f authentication/deployment.yaml
 kubectl delete -f postgres-deployment.yaml
-kubetl delete -f secrets.yaml
+kubectl delete -f secrets.yaml
 
 ```
