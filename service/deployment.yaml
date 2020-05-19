@@ -45,13 +45,13 @@ spec:
         - name: book-service
           image: ashutoshsahoo/book-service:1.0.0
           # imagePullPolicy: IfNotPresent
-          # resources:
-          #     requests:
-          #       memory: "500Mi"
-          #       cpu: "1"
-          #     limits:
-          #       memory: "1Gi"
-          #       cpu: "2"
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "200m"
+            limits:
+              memory: "700Mi"
+              cpu: "500m"
           ports:
             - name: http
               containerPort: 8080
@@ -68,9 +68,15 @@ spec:
               value: kubernetes
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres-service/booksdb
-            - name: SPRING_DATASOURCE_USERNAME
-              value: postgres
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: changeme
             - name: SPRING_FLYWAY_LOCATIONS
               value: classpath:db/migration/postgresql
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-db
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-db
+                  key: password
