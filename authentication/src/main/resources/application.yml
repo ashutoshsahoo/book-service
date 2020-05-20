@@ -14,7 +14,10 @@ security:
 
 logging:
   level:
-    com.ashu.practice: DEBUG  
+    root: error
+    com.ashu.practice: debug
+    #org.springframework.security.web: debug
+    org.springframework.cache: trace
 server:
   servlet:
     context-path: /api/v1
@@ -29,13 +32,12 @@ spring:
 #    console:
 #      enabled: true
   jpa:
-#    hibernate:
-#      ddl-auto: validate
     show-sql: true
   flyway:
     locations:
     - classpath:db/migration/h2
-    
+  main:
+   banner-mode: off 
 hazelcast:
   instance-name: authentication-service-instance
   map-name: authentication-service

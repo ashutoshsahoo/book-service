@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class SpringDataJpaPracticeApplicationTests {
+class BookServiceApplicationTests {
 
 	@Autowired
 	private MockMvc mockMvc;

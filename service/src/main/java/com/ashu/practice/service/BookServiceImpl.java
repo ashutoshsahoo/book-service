@@ -5,9 +5,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
@@ -19,7 +16,6 @@ import com.ashu.practice.exception.BookNotFoundException;
 import com.ashu.practice.exception.IsbnAlreadyExistsException;
 import com.ashu.practice.model.Book;
 import com.ashu.practice.repository.BookRepository;
-import com.ashu.practice.utils.CacheConstants;
 
 @Service
 public class BookServiceImpl implements BookService {
@@ -42,7 +38,6 @@ public class BookServiceImpl implements BookService {
 		return convertModelToDto(book);
 	}
 
-	@Cacheable(cacheNames = { CacheConstants.BOOKS_CACHE }, key = "#id")
 	@Override
 	public BookDto findById(Long id) {
 		return convertModelToDto(findBookById(id));
@@ -63,14 +58,12 @@ public class BookServiceImpl implements BookService {
 		return books.stream().map(this::convertModelToDto).collect(Collectors.toList());
 	}
 
-	@Cacheable(cacheNames = { CacheConstants.BOOKS_CACHE })
 	@Override
 	public List<BookDto> findAll() {
 		List<Book> books = bookRepo.findAll();
 		return books.stream().map(this::convertModelToDto).collect(Collectors.toList());
 	}
 
-	@CachePut(cacheNames = { CacheConstants.BOOKS_CACHE }, key = "#id")
 	@Override
 	public BookDto update(Long id, BookDto bookDto) {
 		Book bookFound = findBookById(id);
@@ -85,7 +78,6 @@ public class BookServiceImpl implements BookService {
 		return convertModelToDto(book);
 	}
 
-	@CacheEvict(cacheNames = { CacheConstants.BOOKS_CACHE }, key = "#id")
 	@Override
 	public void delete(Long id) {
 		Book bookFound = findBookById(id);

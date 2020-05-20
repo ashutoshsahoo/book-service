@@ -27,11 +27,6 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 		return Optional.ofNullable(username);
 	}
 
-//	@Override
-//	public boolean validateToken(String token) {
-//		return getUserFromToken(token).isPresent();
-//	}
-
 	private Optional<String> getUserFromToken(String token) {
 		ValidateTokenRequest payload = new ValidateTokenRequest(token);
 		ResponseEntity<ValidateTokenResponse> response = restTemplate.postForEntity("/token", payload,

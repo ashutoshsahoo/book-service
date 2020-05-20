@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.ashu.practice.controller.HelloController;
 
 @SpringBootTest
-class SpringBootAuthJwtApplicationTests {
+class AuthenticationApplicationTests {
 
 	@Autowired
 	private HelloController helloController;

@@ -43,7 +43,7 @@ public class AuthenticationController {
 
 	@PostMapping("/signin")
 	public ResponseEntity<LoginResponse> createToken(@RequestBody @Valid LoginRequest request) {
-		log.debug("signing in with username" + request.getUsername());
+		log.debug("signing in with username=" + request.getUsername());
 		Authentication authentication = authManager
 				.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -52,7 +52,7 @@ public class AuthenticationController {
 
 	@PostMapping(value = "/signup")
 	public ResponseEntity<Void> saveUser(@RequestBody @Valid SignupRequest request) {
-		log.debug("signing up with username" + request.getUsername());
+		log.debug("signing up with username=" + request.getUsername());
 		userDetailsService.save(request);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}

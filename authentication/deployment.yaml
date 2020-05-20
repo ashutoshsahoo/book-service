@@ -58,9 +58,9 @@ spec:
               containerPort: 8085
             - name: multicast
               containerPort: 5701
-          env:
+          env: #add jwt.secret,validity
             - name: HAZELCAST_SERVICE_NAME
-              value: hazelcast-auth-service
+              value: hazelcast-auth-service #change to auth-service
             - name: HAZELCAST_NAMESPACE
               value: default
             - name: HAZELCAST_DISCOVERY_TYPE

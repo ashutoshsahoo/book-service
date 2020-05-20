@@ -22,7 +22,7 @@ public class HazelcastConfiguration {
 		config.setClusterName(configProperties.getClusterName());
 		config.setInstanceName(configProperties.getInstanceName());
 		MapConfig mapConfig = new MapConfig();
-		mapConfig.setName(configProperties.getMapName()).setBackupCount(2).setTimeToLiveSeconds(300);
+		mapConfig.setName(configProperties.getMapName()).setBackupCount(2).setTimeToLiveSeconds(300); //TODO: update to 300
 		config.addMapConfig(mapConfig);
 		return config;
 	}
@@ -44,4 +44,5 @@ public class HazelcastConfiguration {
 		config.addMapConfig(mapConfig);
 		return config;
 	}
+
 }

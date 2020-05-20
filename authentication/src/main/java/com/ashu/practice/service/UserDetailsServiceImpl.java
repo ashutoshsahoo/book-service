@@ -8,15 +8,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +25,7 @@ import com.ashu.practice.dto.UserUpdateRequest;
 import com.ashu.practice.exception.EmailAlreadyExistsException;
 import com.ashu.practice.exception.EmailNotFoundException;
 import com.ashu.practice.exception.RoleDoesNotExistException;
+import com.ashu.practice.exception.UserNotFoundException;
 import com.ashu.practice.exception.UsernameAlreadyExistsException;
 import com.ashu.practice.model.Role;
 import com.ashu.practice.model.RoleType;
@@ -35,7 +33,6 @@ import com.ashu.practice.model.UserDao;
 import com.ashu.practice.model.UserDetailsImpl;
 import com.ashu.practice.repository.RoleRepository;
 import com.ashu.practice.repository.UserRepository;
-import com.ashu.practice.utils.CacheConstants;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsInternalService {
@@ -49,12 +46,11 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 	@Autowired
 	private PasswordEncoder encoder;
 
-	@Cacheable(cacheNames = { CacheConstants.USER_DETAILS_CACHE }, key = "#username")
 	@Transactional
 	@Override
 	public UserDetails loadUserByUsername(String username) {
-		UserDao userDao = findByUsername(username);
-		return convertDaoToUserDetails(userDao);
+		UserDto userDto = viewByUsername(username);
+		return convertDtoToUserDetails(userDto);
 	}
 
 	@Override
@@ -69,14 +65,11 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		}
 
 		Set<Role> roles = convertRole(request.getRoles());
-
-		// Create new user's account
 		UserDao user = new UserDao(request.getUsername(), request.getEmail(), encoder.encode(request.getPassword()),
 				roles);
-		return convertModelToDto(userRepository.save(user));
+		return convertModelToDto(userRepository.saveAndFlush(user));
 	}
 
-	// @CachePut(cacheNames = { CacheConstants.USER_DAO_CACHE }, key = "#username")
 	@Override
 	public UserDto update(String username, UserUpdateRequest request) {
 		UserDao userDao = findByUsername(username);
@@ -99,7 +92,6 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		return convertModelToDto(userDao);
 	}
 
-	// @Cacheable(cacheNames = { CacheConstants.USER_DAO_CACHE }, key = "#email")
 	@Override
 	public UserDto viewByEmail(String email) {
 		UserDao userDao = userRepository.findByEmail(email).orElseThrow(() -> new EmailNotFoundException(email));
@@ -112,7 +104,6 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		return users.map(this::convertModelToDto);
 	}
 
-	@CacheEvict(cacheNames = { CacheConstants.USER_DETAILS_CACHE }, key = "#username")
 	@Override
 	public void delete(String username) {
 		UserDao userDao = findByUsername(username);
@@ -129,6 +120,10 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		userRepository.save(userDao);
 	}
 
+	private UserDao findByUsername(String username) {
+		return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+	}
+
 	private UserDto convertModelToDto(UserDao userDao) {
 		UserDto userDto = new UserDto();
 		BeanUtils.copyProperties(userDao, userDto, "roles");
@@ -137,21 +132,14 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		return userDto;
 	}
 
-	private UserDetailsImpl convertDaoToUserDetails(UserDao user) {
-
-		List<GrantedAuthority> authorities = user.getRoles().stream()
-				.map(role -> new SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
-
+	private UserDetailsImpl convertDtoToUserDetails(UserDto user) {
+		List<GrantedAuthority> authorities = user.getRoles().stream().map(SimpleGrantedAuthority::new)
+				.collect(Collectors.toList());
 		return new UserDetailsImpl(user.getUsername(), user.getEmail(), user.getPassword(), authorities);
-	}
-
-	private UserDao findByUsername(String username) {
-		return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
 	}
 
 	private Set<Role> convertRole(Set<String> strRoles) {
 		Set<Role> roles = new HashSet<>();
-
 		// TODO: support for arbitrary roles
 		if (strRoles == null) {
 			Role userRole = roleRepository.findByName(RoleType.ROLE_USER).orElseThrow(RoleDoesNotExistException::new);
@@ -178,5 +166,4 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		}
 		return roles;
 	}
-
 }
