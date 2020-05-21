@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,6 +35,7 @@ import com.ashu.practice.model.UserDao;
 import com.ashu.practice.model.UserDetailsImpl;
 import com.ashu.practice.repository.RoleRepository;
 import com.ashu.practice.repository.UserRepository;
+import com.ashu.practice.utils.CacheConstants;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsInternalService {
@@ -46,11 +49,12 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 	@Autowired
 	private PasswordEncoder encoder;
 
+	@Cacheable(cacheNames = { CacheConstants.USERS_CACHE }, key = "#username")
 	@Transactional
 	@Override
 	public UserDetails loadUserByUsername(String username) {
-		UserDto userDto = viewByUsername(username);
-		return convertDtoToUserDetails(userDto);
+		UserDao userDao = findByUsername(username);
+		return convertDaoToUserDetails(userDao);
 	}
 
 	@Override
@@ -70,6 +74,7 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		return convertModelToDto(userRepository.saveAndFlush(user));
 	}
 
+	@CacheEvict(cacheNames = { CacheConstants.USERS_CACHE }, key = "#username")
 	@Override
 	public UserDto update(String username, UserUpdateRequest request) {
 		UserDao userDao = findByUsername(username);
@@ -104,6 +109,7 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		return users.map(this::convertModelToDto);
 	}
 
+	@CacheEvict(cacheNames = { CacheConstants.USERS_CACHE }, key = "#username")
 	@Override
 	public void delete(String username) {
 		UserDao userDao = findByUsername(username);
@@ -132,9 +138,9 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
 		return userDto;
 	}
 
-	private UserDetailsImpl convertDtoToUserDetails(UserDto user) {
-		List<GrantedAuthority> authorities = user.getRoles().stream().map(SimpleGrantedAuthority::new)
-				.collect(Collectors.toList());
+	private UserDetailsImpl convertDaoToUserDetails(UserDao user) {
+		List<GrantedAuthority> authorities = user.getRoles().stream()
+				.map(role -> new SimpleGrantedAuthority(role.getName().toString())).collect(Collectors.toList());
 		return new UserDetailsImpl(user.getUsername(), user.getEmail(), user.getPassword(), authorities);
 	}
 

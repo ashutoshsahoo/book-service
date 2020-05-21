@@ -10,14 +10,14 @@ security:
 #    ignored:
 #     - /h2-console/**
     permitted:
-    - /auth/**
+      - /auth/**
 
 logging:
   level:
-    root: error
+    #root: error
     com.ashu.practice: debug
     #org.springframework.security.web: debug
-    org.springframework.cache: trace
+    #org.springframework.cache: trace
 server:
   servlet:
     context-path: /api/v1

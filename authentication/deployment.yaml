@@ -58,9 +58,11 @@ spec:
               containerPort: 8085
             - name: multicast
               containerPort: 5701
-          env: #add jwt.secret,validity
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
             - name: HAZELCAST_SERVICE_NAME
-              value: hazelcast-auth-service #change to auth-service
+              value: hazelcast-auth-service
             - name: HAZELCAST_NAMESPACE
               value: default
             - name: HAZELCAST_DISCOVERY_TYPE
@@ -79,3 +81,23 @@ spec:
                 secretKeyRef:
                   name: postgres-db
                   key: password
+            - name: JWT_TOKEN_VALIDITY
+              value: "1800000"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth-svc
+                  key: jwt_secret
+          readinessProbe:
+            httpGet:
+              path: /api/v1/actuator/health/readiness
+              port: http
+            initialDelaySeconds: 140
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/v1/actuator/health/liveness
+              port: http
+            initialDelaySeconds: 150
+            timeoutSeconds: 10
+            failureThreshold: 10

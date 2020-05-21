@@ -1,0 +1,334 @@
+{
+	"info": {
+		"_postman_id": "c390dcac-49a3-4671-8d39-4f384b6f85d4",
+		"name": "book-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create user-Signup",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"ashutosh\",\n\t\"email\":\"ashu@email.com\",\n\t\"password\": \"password\",\n\t\"roles\": [\"admin\"]\n}",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": {
+					"raw": "localhost:{{auth-port}}/api/v1/auth/signup",
+					"host": [
+						"localhost"
+					],
+					"port": "{{auth-port}}",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generate token-signin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9c19e265-0105-4668-9d9f-b9a4e2c2ac03",
+						"exec": [
+							"const dataFromResponse = pm.response.json();",
+							"pm.environment.set(\"token\", dataFromResponse.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"ashutosh\",\n\t\"password\": \"password\"\n}",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": {
+					"raw": "localhost:{{auth-port}}/api/v1/auth/signin",
+					"host": [
+						"localhost"
+					],
+					"port": "{{auth-port}}",
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a book",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "\r\n    {\r\n        \"isbn\": \"9780596520689\",\r\n        \"name\": \"Chemistry Book name\",\r\n        \"author\": \"Ashutosh Sahoo\"\r\n    }",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": {
+					"raw": "localhost:{{svc-port}}/api/v1/books",
+					"host": [
+						"localhost"
+					],
+					"port": "{{svc-port}}",
+					"path": [
+						"api",
+						"v1",
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View book by id",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:{{svc-port}}/api/v1/books/1000",
+					"host": [
+						"localhost"
+					],
+					"port": "{{svc-port}}",
+					"path": [
+						"api",
+						"v1",
+						"books",
+						"1000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all the books",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:{{svc-port}}/api/v1/books",
+					"host": [
+						"localhost"
+					],
+					"port": "{{svc-port}}",
+					"path": [
+						"api",
+						"v1",
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search all the books",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:{{svc-port}}/api/v1/books/search?name=physics",
+					"host": [
+						"localhost"
+					],
+					"port": "{{svc-port}}",
+					"path": [
+						"api",
+						"v1",
+						"books",
+						"search"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "physics"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update a book",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"isbn\": \"9780596520689\",\n    \"name\": \"Chemistry Book\",\n    \"author\": \"Ashutosh Sahoo\"\n}",
+					"options": {
+						"raw": {}
+					}
+				},
+				"url": {
+					"raw": "localhost:{{svc-port}}/api/v1/books/1001",
+					"host": [
+						"localhost"
+					],
+					"port": "{{svc-port}}",
+					"path": [
+						"api",
+						"v1",
+						"books",
+						"1001"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a book",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:{{svc-port}}/api/v1/books/1001",
+					"host": [
+						"localhost"
+					],
+					"port": "{{svc-port}}",
+					"path": [
+						"api",
+						"v1",
+						"books",
+						"1001"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"protocolProfileBehavior": {}
+}

@@ -60,7 +60,7 @@ service/postgres-service         ClusterIP      10.110.35.193   <none>        54
 
 ## Test application
 
-Use the provided postman collection (inside authentication and service directory) to test the application.
+Use the provided postman collection to test the application.
 
 ## Check database setup
 

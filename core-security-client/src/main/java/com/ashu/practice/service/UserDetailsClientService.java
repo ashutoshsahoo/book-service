@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.ashu.practice.model.UserDetailsImpl;
+import com.ashu.practice.utils.CacheConstants;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,10 +19,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserDetailsClientService implements UserDetailsService {
 
-	private static final String CLIENT_USERS_CACHE = "CLIENT_USERS_CACHE";
 	private final RestTemplate restTemplate;
 
-	@Cacheable(cacheNames = { CLIENT_USERS_CACHE }, key = "#username")
+	@Cacheable(cacheNames = { CacheConstants.USERS_CACHE }, key = "#username")
 	@Override
 	public UserDetails loadUserByUsername(String username) {
 		return getUserDetails(username).orElseThrow(() -> new UsernameNotFoundException(username + " not found"));
