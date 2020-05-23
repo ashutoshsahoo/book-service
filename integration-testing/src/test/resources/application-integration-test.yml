@@ -1,8 +1,0 @@
-logging:
-  level:
-    com.ashu.practice: DEBUG
-server:  servlet:    context-path: /api/v1
-    
-spring:
-  flyway:    locations:    - classpath:db/migration/postgresql
-          

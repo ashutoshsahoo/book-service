@@ -27,6 +27,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -56,6 +57,12 @@ class BookServiceApplicationTests {
 	}
 
 	@Test
+	public void find_noAuth_401() throws Exception {
+		mockMvc.perform(get("/books/{id}", 1)).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@WithMockUser("USER")
 	public void findById_OK() throws Exception {
 		// @formatter:off
 		mockMvc
@@ -73,6 +80,7 @@ class BookServiceApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("USER")
 	public void find_bookIdNotFound_404() throws Exception {
 		// @formatter:off
 		mockMvc.perform(get("/books/{id}", 2)
@@ -83,6 +91,7 @@ class BookServiceApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("USER")
 	public void find_allBooks_OK() throws Exception {
 		Book book1 = Book.builder().id(1L).isbn("9780596520687").name("test name").author("test author").build();
 		Book book2 = Book.builder().id(2L).isbn("9780596520688").name("test name two").author("test author two")
@@ -110,6 +119,7 @@ class BookServiceApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("USER")
 	public void save_OK() throws Exception {
 		BookBuilder bookBuilder = Book.builder().isbn("9780596520687").name("test name").author("test author");
 		when(mockRepository.saveAndFlush(any(Book.class))).thenReturn(bookBuilder.id(1L).build());
@@ -129,6 +139,7 @@ class BookServiceApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("USER")
 	public void save_emptyName_nullIsbn_400() throws Exception {
 		Book book = Book.builder().isbn(null).name("").author("test author").build();
 		// @formatter:off
@@ -143,13 +154,14 @@ class BookServiceApplicationTests {
 				.andExpect(jsonPath("$.details", hasSize(4)))
 				.andExpect(jsonPath("$.details", hasItem("name should not be empty or null")))
 				.andExpect(jsonPath("$.details", hasItem("name should have minimun 2 characters and maximum 30 characters length")))
-				.andExpect(jsonPath("$.details", hasItem("Invalid name - no special characters allowed")))
+				.andExpect(jsonPath("$.details", hasItem("Invalid name - no special characters or numbers allowed")))
 				.andExpect(jsonPath("$.details", hasItem("isbn should not be empty or null")));
 		// @formatter:on
 		verify(mockRepository, times(0)).saveAndFlush(any(Book.class));
 	}
 
 	@Test
+	@WithMockUser("USER")
 	public void update_book_OK() throws Exception {
 		BookBuilder bookBuilder = Book.builder().isbn("9780596520687").name("test name updated").author("test author");
 		when(mockRepository.saveAndFlush(any(Book.class))).thenReturn(bookBuilder.id(1L).build());
@@ -169,6 +181,7 @@ class BookServiceApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("USER")
 	public void delete_employee_OK() throws Exception {
 		doNothing().when(mockRepository).delete(any(Book.class));
 		// @formatter:off
@@ -182,6 +195,7 @@ class BookServiceApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("USER")
 	public void delete_employee_notFound_404() throws Exception {
 		doNothing().when(mockRepository).delete(any(Book.class));
 		when(mockRepository.findById(2L)).thenReturn(Optional.ofNullable(null));

@@ -22,7 +22,6 @@
 		<module>core-security-client</module>
 		<module>authentication</module>
 		<module>service</module>
-		<module>integration-testing</module>
 	</modules>
 
 
@@ -30,8 +29,6 @@
 		<java.version>11</java.version>
 		<jib.version>2.2.0</jib.version>
 		<jwt.version>0.11.1</jwt.version>
-		<testcontainers.postgresql.version>1.62</testcontainers.postgresql.version>
-		<spring.cloud.version>2.2.2.RELEASE</spring.cloud.version>
 		<hazelcast.version>4.0.1</hazelcast.version>
 		<hazelcast.client.version>3.12.7</hazelcast.client.version>
 		<hazelcast.kubernetes.version>2.0.1</hazelcast.kubernetes.version>
@@ -56,11 +53,6 @@
 				<version>${jwt.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter</artifactId>
-				<version>${spring.cloud.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast</artifactId>
 				<version>${hazelcast.version}</version>
@@ -80,13 +72,7 @@
 				<artifactId>hazelcast-kubernetes</artifactId>
 				<version>${hazelcast.kubernetes.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.playtika.testcontainers</groupId>
-				<artifactId>embedded-postgresql</artifactId>
-				<version>${testcontainers.postgresql.version}</version>
-			</dependency>
 		</dependencies>
-
 	</dependencyManagement>
 
 	<build>
