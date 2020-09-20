@@ -1,108 +1,108 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.ashu.practice</groupId>
-	<artifactId>book-service</artifactId>
-	<version>1.0.0</version>
-	<name>book-service</name>
-	<description>Book Service</description>
-	<packaging>pom</packaging>
+    <groupId>com.ashu.practice</groupId>
+    <artifactId>book-service</artifactId>
+    <version>1.0.0</version>
+    <name>book-service</name>
+    <description>Book Service</description>
+    <packaging>pom</packaging>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.0.RELEASE</version>
-		<relativePath />
-	</parent>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.0.RELEASE</version>
+        <relativePath/>
+    </parent>
 
-	<modules>
-		<module>core-security</module>
-		<module>core-security-client</module>
-		<module>authentication</module>
-		<module>service</module>
-	</modules>
-
-
-	<properties>
-		<java.version>11</java.version>
-		<jib.version>2.2.0</jib.version>
-		<jwt.version>0.11.1</jwt.version>
-		<hazelcast.version>4.0.1</hazelcast.version>
-		<hazelcast.client.version>3.12.7</hazelcast.client.version>
-		<hazelcast.kubernetes.version>2.0.1</hazelcast.kubernetes.version>
-	</properties>
+    <modules>
+        <module>core-security</module>
+        <module>core-security-client</module>
+        <module>authentication</module>
+        <module>service</module>
+    </modules>
 
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>io.jsonwebtoken</groupId>
-				<artifactId>jjwt-api</artifactId>
-				<version>${jwt.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.jsonwebtoken</groupId>
-				<artifactId>jjwt-impl</artifactId>
-				<version>${jwt.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.jsonwebtoken</groupId>
-				<artifactId>jjwt-jackson</artifactId>
-				<version>${jwt.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.hazelcast</groupId>
-				<artifactId>hazelcast</artifactId>
-				<version>${hazelcast.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.hazelcast</groupId>
-				<artifactId>hazelcast-spring</artifactId>
-				<version>${hazelcast.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.hazelcast</groupId>
-				<artifactId>hazelcast-client</artifactId>
-				<version>${hazelcast.client.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.hazelcast</groupId>
-				<artifactId>hazelcast-kubernetes</artifactId>
-				<version>${hazelcast.kubernetes.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+    <properties>
+        <java.version>11</java.version>
+        <jib.version>2.5.2</jib.version>
+        <jwt.version>0.11.1</jwt.version>
+        <hazelcast.version>4.0.1</hazelcast.version>
+        <hazelcast.client.version>3.12.7</hazelcast.client.version>
+        <hazelcast.kubernetes.version>2.0.1</hazelcast.kubernetes.version>
+    </properties>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>com.google.cloud.tools</groupId>
-					<artifactId>jib-maven-plugin</artifactId>
-					<version>${jib.version}</version>
-					<configuration>
-						<to>
-							<image>${docker.image.name}</image>
-							<tags>
-								<tag>${project.version}</tag>
-								<tag>latest</tag>
-							</tags>
-						</to>
-					</configuration>
-					<executions>
-						<execution>
-							<phase>package</phase>
-							<goals>
-								<!-- Set to 'build' that will directly build and push to remote docker 
-									registry -->
-								<goal>dockerBuild</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-spring</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-client</artifactId>
+                <version>${hazelcast.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-kubernetes</artifactId>
+                <version>${hazelcast.kubernetes.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>${jib.version}</version>
+                    <configuration>
+                        <to>
+                            <!-- This value will be set at individual project pom. -->
+                            <image>${docker.image.name}</image>
+                            <tags>
+                                <tag>${project.version}</tag>
+                                <tag>latest</tag>
+                            </tags>
+                        </to>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <!-- To build and push to remote docker registry, set to 'build' -->
+                                <goal>dockerBuild</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

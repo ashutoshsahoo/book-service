@@ -11,7 +11,7 @@ Sample project to use spring boot with
 - jib maven plugin
 - kubernetes
 
-## Build the project (ensure kubernetes and docker environment is set)
+## Build the project (ensure kubernetes and docker environment variables set accordingly)
 
 ```sh
 
@@ -62,7 +62,7 @@ service/postgres-service         ClusterIP      10.110.35.193   <none>        54
 
 Use the provided postman collection to test the application.
 
-## Check database setup
+## Check database setup with pgAdmin4
 
 ```sh
 
@@ -70,7 +70,7 @@ kubectl apply -f pgadmin4-deployment.yaml
 
 ```
 
-Open `http://localhost:3100` (originally `http://<node-ip>:3100`) in browser and login with `pgadmin@example.org` and `changeme`. Select servers and input password as `changeme`.
+Open `http://localhost:31000` (originally `http://<node-ip>:31000`) in browser and login with `pgadmin@example.org` and `changeme`. Select servers and input password as `changeme`.
 
 ## Clean up system
 
