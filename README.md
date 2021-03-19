@@ -72,7 +72,7 @@ kubectl apply -f pgadmin4-deployment.yaml
 
 ```
 
-Open [http://<kubernetes-node-ip>:31000](http://localhost:31000) in browser and login with `pgadmin@example.org` and `changeme`. Select servers and input password as `changeme`.
+Open [http://kubernetes-node-ip:31000](http://localhost:31000) in browser and login with `pgadmin@example.org` and `changeme`. Select servers and input password as `changeme`.
 
 ## Clean up system
 
