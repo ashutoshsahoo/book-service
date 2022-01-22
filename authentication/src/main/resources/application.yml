@@ -14,8 +14,8 @@ security:
 
 logging:
   level:
-    root: error
-    #com.ashu.practice: debug
+    root: info
+    com.ashu.practice: debug
     #org.springframework.security.web: debug
     #org.springframework.cache: trace
 server:

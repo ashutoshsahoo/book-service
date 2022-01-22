@@ -50,7 +50,7 @@ spec:
     spec:
       containers:
         - name: pgadmin
-          image: dpage/pgadmin4:4.21
+          image: dpage/pgadmin4:6.4
           resources:
             limits:
               memory: "300Mi"

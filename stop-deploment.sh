@@ -1,4 +1,5 @@
 #!/bin/bash
+
 echo "Removing application deployment"
 kubectl delete -f service/deployment.yaml
 kubectl delete -f authentication/deployment.yaml

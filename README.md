@@ -15,15 +15,22 @@ Sample project to use spring boot with
 
 Ensure kubernetes and docker environment variables set.
 
-```sh
+```shell
 
 mvn clean package -DskipTests
 
 ```
 
+## Enable Hazelcast Kubernetes discovery
+
+```shell
+
+kubectl apply -f kubernetes-rbac.yaml
+```
+
 ## Deploy application
 
-```sh
+```shell
 
 kubectl apply -f secrets.yaml
 kubectl apply -f postgres-deployment.yaml
@@ -32,9 +39,9 @@ kubectl apply -f service/deployment.yaml
 
 ```
 
-Check application status:
+It will take some time to start the application, To check application status:
 
-```sh
+```shell
 
 kubectl get po,svc
 
@@ -42,21 +49,22 @@ kubectl get po,svc
 
 The output should be like:
 
-```sh
+```shell
 
 NAME                                READY   STATUS    RESTARTS   AGE
-pod/auth-service-7b64f79ccb-9pgz9   1/1     Running   0          47s
-pod/auth-service-7b64f79ccb-w4852   1/1     Running   0          47s
-pod/book-service-77bbf9d674-4wl85   1/1     Running   0          35s
-pod/book-service-77bbf9d674-sf6ql   1/1     Running   0          36s
-pod/postgres-65bd5b7547-85dcf       1/1     Running   0          95s
+pod/auth-service-7459958db-kd58f    1/1     Running   0          6m25s
+pod/auth-service-7459958db-sjvsb    1/1     Running   0          6m25s
+pod/book-service-776bdbf7bb-f9jnq   1/1     Running   0          5m59s
+pod/book-service-776bdbf7bb-hcqx2   1/1     Running   0          5m59s
+pod/postgres-779fdfc844-bxt8n       1/1     Running   0          71m
 
-NAME                             TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-service/auth-service             NodePort       10.96.8.95      <none>        80:31001/TCP     47s
-service/book-service             NodePort       10.104.33.104   <none>        80:31002/TCP     36s
-service/hazelcast-auth-service   LoadBalancer   10.105.34.134   localhost     5701:30835/TCP   47s
-service/hazelcast-book-service   LoadBalancer   10.96.153.174   localhost     5701:30728/TCP   36s
-service/postgres-service         ClusterIP      10.110.35.193   <none>        5432/TCP         95s
+NAME                             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+service/auth-service             NodePort    10.102.102.133   <none>        80:31001/TCP   6m25s
+service/book-service             NodePort    10.105.109.185   <none>        80:31002/TCP   5m59s
+service/hazelcast-auth-service   ClusterIP   10.105.22.147    <none>        5701/TCP       6m25s
+service/hazelcast-book-service   ClusterIP   10.103.55.1      <none>        5701/TCP       5m59s
+service/kubernetes               ClusterIP   10.96.0.1        <none>        443/TCP        35d
+service/postgres-service         ClusterIP   10.105.241.167   <none>        5432/TCP       71m
 
 ```
 
@@ -66,17 +74,18 @@ Use the provided postman collection to test the application.
 
 ## Check database setup with pgAdmin4
 
-```sh
+```shell
 
 kubectl apply -f pgadmin4-deployment.yaml
 
 ```
 
-Open [http://kubernetes-node-ip:31000](http://localhost:31000) in browser and login with `pgadmin@example.org` and `changeme`. Select servers and input password as `changeme`.
+Open [http://<kubernetes-node-ip>:31000](http://localhost:31000) in browser and login with `pgadmin@example.org`
+and `changeme`. Select servers (on left pane) and input password as `changeme`.
 
 ## Clean up system
 
-```sh
+```shell
 
 kubectl delete -f service/deployment.yaml
 kubectl delete -f authentication/deployment.yaml
@@ -85,3 +94,7 @@ kubectl delete -f postgres-deployment.yaml
 kubectl delete -f secrets.yaml
 
 ```
+
+## Script to start and stop the deployment
+
+Use the provided scripts `start-deployment.sh` and `stop-deployment.sh` to start and stop the deployment respectively.
