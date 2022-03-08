@@ -30,7 +30,7 @@
         <java.version>11</java.version>
         <jib.version>3.2.0</jib.version>
         <jwt.version>0.11.2</jwt.version>
-        <hazelcast.version>5.0.2</hazelcast.version>
+        <hazelcast.version>5.1</hazelcast.version>
         <hazelcast.client.version>3.12.12</hazelcast.client.version>
         <hazelcast.kubernetes.version>2.2.3</hazelcast.kubernetes.version>
         <docker.image.name>book-service</docker.image.name>
