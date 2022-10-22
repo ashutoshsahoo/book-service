@@ -24,7 +24,6 @@
         <module>service</module>
     </modules>
 
-
     <properties>
         <revision>2.0.0</revision>
         <java.version>17</java.version>
@@ -34,8 +33,8 @@
         <hazelcast.client.version>3.12.13</hazelcast.client.version>
         <hazelcast.kubernetes.version>2.2.3</hazelcast.kubernetes.version>
         <docker.image.name>book-service</docker.image.name>
+        <spring-cloud.version>2021.0.4</spring-cloud.version>
     </properties>
-
 
     <dependencyManagement>
         <dependencies>
@@ -56,23 +55,15 @@
             </dependency>
             <dependency>
                 <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast</artifactId>
-                <version>${hazelcast.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast-spring</artifactId>
-                <version>${hazelcast.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast-client</artifactId>
-                <version>${hazelcast.client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-kubernetes</artifactId>
                 <version>${hazelcast.kubernetes.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

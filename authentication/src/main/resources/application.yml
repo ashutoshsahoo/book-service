@@ -16,6 +16,7 @@ logging:
   level:
     root: info
     com.ashu.practice: debug
+#    com.hazelcast: WARN
     #org.springframework.security.web: debug
     #org.springframework.cache: trace
 server:
@@ -24,6 +25,8 @@ server:
   port: 8085
 
 spring:
+  application:
+    name: authentication-service
 #  datasource:
 #    url: jdbc:postgresql://localhost/postgres
 #    username: postgres
@@ -34,10 +37,18 @@ spring:
 #  jpa:
 #    show-sql: true
   flyway:
+#    enabled: false
     locations:
     - classpath:db/migration/h2
   main:
-   banner-mode: off 
+   banner-mode: off
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
 hazelcast:
   instance-name: authentication-service-instance
   map-name: authentication-service

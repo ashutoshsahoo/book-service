@@ -9,6 +9,8 @@ server:
   servlet:
     context-path: /api/v1
 spring:
+  application:
+    name: book-service
 #  datasource:
 #    url: jdbc:postgresql://localhost/booksdb
 #    username: postgres
@@ -22,7 +24,13 @@ spring:
     - classpath:db/migration/h2
   main:
     banner-mode: off
-          
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
 hazelcast:
   instance-name: book-service-instance
   map-name: book-service
