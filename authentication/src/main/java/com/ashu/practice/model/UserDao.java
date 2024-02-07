@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +19,7 @@ import java.util.Set;
 		@UniqueConstraint(columnNames = "email") })
 public class UserDao implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 2648537870798922434L;
 
 	private static final String USER_ID_SEQUENCE = "USER_ID_SEQUENCE";

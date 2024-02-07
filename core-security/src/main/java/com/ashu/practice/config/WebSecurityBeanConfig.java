@@ -1,7 +1,9 @@
 package com.ashu.practice.config;
 
+import com.ashu.practice.service.JwtTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -9,8 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class WebSecurityBeanConfig {
 
     @Bean
-    public AuthenticationTokenFilter authenticationTokenFilter() {
-        return new AuthenticationTokenFilter();
+    public AuthenticationTokenFilter authenticationTokenFilter(UserDetailsService userDetailsService,
+                                                               JwtTokenService tokenService) {
+        return new AuthenticationTokenFilter(userDetailsService, tokenService);
     }
 
     @Bean

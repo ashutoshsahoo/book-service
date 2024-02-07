@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,13 +18,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 public class AuthenticationTokenFilter extends OncePerRequestFilter {
 
-	@Autowired
-	private UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
 
-	@Autowired
-	private JwtTokenService tokenService;
+	private final JwtTokenService tokenService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -50,7 +50,7 @@ public class AuthenticationTokenFilter extends OncePerRequestFilter {
 		String headerAuth = request.getHeader("Authorization");
 		String token = null;
 		if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-			token = headerAuth.substring(7, headerAuth.length());
+			token = headerAuth.substring(7);
 		}
 		return Optional.ofNullable(token);
 	}

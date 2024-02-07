@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
@@ -13,6 +14,7 @@ import java.io.Serializable;
 @Table(name = "ROLES")
 public class Role implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = -3802416542766728846L;
 
 	private static final String ROLE_ID_SEQUENCE = "ROLE_ID_SEQUENCE";

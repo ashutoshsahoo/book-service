@@ -1,7 +1,7 @@
 package com.ashu.practice.config;
 
 import jakarta.servlet.Filter;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -29,22 +29,10 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @EnableCaching
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    @Autowired
-    private AuthenticationEntryPointImpl authenticationEntryPoint;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
-
-    @Autowired
-    private SecurityConfigProperties securityConfigProperties;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private Filter authenticationTokenFilter;
+    private final SecurityConfigProperties securityConfigProperties;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -52,7 +40,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder);
@@ -60,7 +48,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain configure(HttpSecurity httpSecurity,
+                                         AuthenticationEntryPointImpl authenticationEntryPoint,
+                                         Filter authenticationTokenFilter,
+                                         UserDetailsService userDetailsService,
+                                         PasswordEncoder passwordEncoder) throws Exception {
 
         List<String> permittedPathsList = securityConfigProperties.getPaths() != null
                 ? securityConfigProperties.getPaths().getPermitted()
@@ -74,7 +66,7 @@ public class WebSecurityConfig {
                         auth.requestMatchers(EndpointRequest.to("health"))
                                 .permitAll()
                 .anyRequest().authenticated())
-                .authenticationProvider(authenticationProvider())
+                .authenticationProvider(authenticationProvider(userDetailsService,passwordEncoder))
                 .exceptionHandling(handler-> handler.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         // @formatter:on

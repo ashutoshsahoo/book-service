@@ -12,8 +12,8 @@ import com.ashu.practice.model.UserDetailsImpl;
 import com.ashu.practice.repository.RoleRepository;
 import com.ashu.practice.repository.UserRepository;
 import com.ashu.practice.utils.CacheConstants;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -33,138 +33,136 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsInternalService {
 
-	@Autowired
-	private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-	@Autowired
-	private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
-	@Autowired
-	private PasswordEncoder encoder;
+    private final PasswordEncoder encoder;
 
-	@Cacheable(cacheNames = { CacheConstants.USERS_CACHE }, key = "#username")
-	@Transactional
-	@Override
-	public UserDetails loadUserByUsername(String username) {
-		UserDao userDao = findByUsername(username);
-		return convertDaoToUserDetails(userDao);
-	}
+    @Cacheable(cacheNames = {CacheConstants.USERS_CACHE}, key = "#username")
+    @Transactional
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        UserDao userDao = findByUsername(username);
+        return convertDaoToUserDetails(userDao);
+    }
 
-	@Override
-	public UserDto save(SignupRequest request) {
+    @Override
+    public UserDto save(SignupRequest request) {
 
-		if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-			throw new UsernameAlreadyExistsException(request.getUsername());
-		}
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new UsernameAlreadyExistsException(request.getUsername());
+        }
 
-		if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-			throw new EmailAlreadyExistsException(request.getUsername());
-		}
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException(request.getUsername());
+        }
 
-		Set<Role> roles = convertRole(request.getRoles());
-		UserDao user = new UserDao(request.getUsername(), request.getEmail(), encoder.encode(request.getPassword()),
-				roles);
-		return convertModelToDto(userRepository.saveAndFlush(user));
-	}
+        Set<Role> roles = convertRole(request.getRoles());
+        UserDao user = new UserDao(request.getUsername(), request.getEmail(), encoder.encode(request.getPassword()),
+                roles);
+        return convertModelToDto(userRepository.saveAndFlush(user));
+    }
 
-	@CacheEvict(cacheNames = { CacheConstants.USERS_CACHE }, key = "#username")
-	@Override
-	public UserDto update(String username, UserUpdateRequest request) {
-		UserDao userDao = findByUsername(username);
-		String email = request.getEmail();
-		Optional<UserDao> userDaoByEmail = userRepository.findByEmail(email);
-		if (userDaoByEmail.isPresent() && !userDaoByEmail.get().getId().equals(userDao.getId())) {
-			throw new EmailAlreadyExistsException(email);
-		}
-		Set<Role> roles = convertRole(request.getRoles());
-		userDao.getRoles().clear();
-		userDao.setRoles(roles);
-		userDao.setEmail(email);
-		userDao = userRepository.save(userDao);
-		return convertModelToDto(userDao);
-	}
+    @CacheEvict(cacheNames = {CacheConstants.USERS_CACHE}, key = "#username")
+    @Override
+    public UserDto update(String username, UserUpdateRequest request) {
+        UserDao userDao = findByUsername(username);
+        String email = request.getEmail();
+        Optional<UserDao> userDaoByEmail = userRepository.findByEmail(email);
+        if (userDaoByEmail.isPresent() && !userDaoByEmail.get().getId().equals(userDao.getId())) {
+            throw new EmailAlreadyExistsException(email);
+        }
+        Set<Role> roles = convertRole(request.getRoles());
+        userDao.getRoles().clear();
+        userDao.setRoles(roles);
+        userDao.setEmail(email);
+        userDao = userRepository.save(userDao);
+        return convertModelToDto(userDao);
+    }
 
-	@Override
-	public UserDto viewByUsername(String username) {
-		UserDao userDao = findByUsername(username);
-		return convertModelToDto(userDao);
-	}
+    @Override
+    public UserDto viewByUsername(String username) {
+        UserDao userDao = findByUsername(username);
+        return convertModelToDto(userDao);
+    }
 
-	@Override
-	public UserDto viewByEmail(String email) {
-		UserDao userDao = userRepository.findByEmail(email).orElseThrow(() -> new EmailNotFoundException(email));
-		return convertModelToDto(userDao);
-	}
+    @Override
+    public UserDto viewByEmail(String email) {
+        UserDao userDao = userRepository.findByEmail(email).orElseThrow(() -> new EmailNotFoundException(email));
+        return convertModelToDto(userDao);
+    }
 
-	@Override
-	public Page<UserDto> viewAll(Pageable pageable) {
-		Page<UserDao> users = userRepository.findAll(pageable);
-		return users.map(this::convertModelToDto);
-	}
+    @Override
+    public Page<UserDto> viewAll(Pageable pageable) {
+        Page<UserDao> users = userRepository.findAll(pageable);
+        return users.map(this::convertModelToDto);
+    }
 
-	@CacheEvict(cacheNames = { CacheConstants.USERS_CACHE }, key = "#username")
-	@Override
-	public void delete(String username) {
-		UserDao userDao = findByUsername(username);
-		userRepository.delete(userDao);
-	}
+    @CacheEvict(cacheNames = {CacheConstants.USERS_CACHE}, key = "#username")
+    @Override
+    public void delete(String username) {
+        UserDao userDao = findByUsername(username);
+        userRepository.delete(userDao);
+    }
 
-	@Override
-	public void changePassword(String username, UpdatePasswordRequest request) {
-		UserDao userDao = findByUsername(username);
-		if (!encoder.matches(request.getOldPassword(), userDao.getPassword())) {
-			throw new BadCredentialsException("Provided credentials are not correct");
-		}
-		userDao.setPassword(encoder.encode(request.getNewPassword()));
-		userRepository.save(userDao);
-	}
+    @Override
+    public void changePassword(String username, UpdatePasswordRequest request) {
+        UserDao userDao = findByUsername(username);
+        if (!encoder.matches(request.getOldPassword(), userDao.getPassword())) {
+            throw new BadCredentialsException("Provided credentials are not correct");
+        }
+        userDao.setPassword(encoder.encode(request.getNewPassword()));
+        userRepository.save(userDao);
+    }
 
-	private UserDao findByUsername(String username) {
-		return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
-	}
+    private UserDao findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+    }
 
-	private UserDto convertModelToDto(UserDao userDao) {
-		UserDto userDto = new UserDto();
-		BeanUtils.copyProperties(userDao, userDto, "roles");
-		Set<String> roles = userDao.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toSet());
-		userDto.setRoles(roles);
-		return userDto;
-	}
+    private UserDto convertModelToDto(UserDao userDao) {
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(userDao, userDto, "roles");
+        Set<String> roles = userDao.getRoles().stream().map(role -> role.getName().name()).collect(Collectors.toSet());
+        userDto.setRoles(roles);
+        return userDto;
+    }
 
-	private UserDetailsImpl convertDaoToUserDetails(UserDao user) {
-		List<GrantedAuthority> authorities = user.getRoles().stream()
-				.map(role -> new SimpleGrantedAuthority(role.getName().toString())).collect(Collectors.toList());
-		return new UserDetailsImpl(user.getUsername(), user.getEmail(), user.getPassword(), authorities);
-	}
+    private UserDetailsImpl convertDaoToUserDetails(UserDao user) {
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().toString())).collect(Collectors.toList());
+        return new UserDetailsImpl(user.getUsername(), user.getEmail(), user.getPassword(), authorities);
+    }
 
-	private Set<Role> convertRole(Set<String> strRoles) {
-		Set<Role> roles = new HashSet<>();
-		// TODO: support for arbitrary roles
-		if (strRoles == null) {
-			Role userRole = roleRepository.findByName(RoleType.ROLE_USER).orElseThrow(RoleDoesNotExistException::new);
-			roles.add(userRole);
-		} else {
-			strRoles.forEach(role -> {
-				switch (role) {
-				case "admin":
-					Role adminRole = roleRepository.findByName(RoleType.ROLE_ADMIN)
-							.orElseThrow(() -> new RoleDoesNotExistException(role));
-					roles.add(adminRole);
-					break;
-				case "mod":
-					Role modRole = roleRepository.findByName(RoleType.ROLE_MODERATOR)
-							.orElseThrow(() -> new RoleDoesNotExistException(role));
-					roles.add(modRole);
-					break;
-				default:
-					Role userRole = roleRepository.findByName(RoleType.ROLE_USER)
-							.orElseThrow(() -> new RoleDoesNotExistException(role));
-					roles.add(userRole);
-				}
-			});
-		}
-		return roles;
-	}
+    private Set<Role> convertRole(Set<String> strRoles) {
+        Set<Role> roles = new HashSet<>();
+        // TODO: support for arbitrary roles
+        if (strRoles == null) {
+            Role userRole = roleRepository.findByName(RoleType.ROLE_USER).orElseThrow(RoleDoesNotExistException::new);
+            roles.add(userRole);
+        } else {
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "admin":
+                        Role adminRole = roleRepository.findByName(RoleType.ROLE_ADMIN)
+                                .orElseThrow(() -> new RoleDoesNotExistException(role));
+                        roles.add(adminRole);
+                        break;
+                    case "mod":
+                        Role modRole = roleRepository.findByName(RoleType.ROLE_MODERATOR)
+                                .orElseThrow(() -> new RoleDoesNotExistException(role));
+                        roles.add(modRole);
+                        break;
+                    default:
+                        Role userRole = roleRepository.findByName(RoleType.ROLE_USER)
+                                .orElseThrow(() -> new RoleDoesNotExistException(role));
+                        roles.add(userRole);
+                }
+            });
+        }
+        return roles;
+    }
 }

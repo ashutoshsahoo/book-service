@@ -6,6 +6,7 @@ import com.ashu.practice.exception.BookNotFoundException;
 import com.ashu.practice.exception.IsbnAlreadyExistsException;
 import com.ashu.practice.model.Book;
 import com.ashu.practice.repository.BookRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -14,17 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
 
 	private final BookRepository bookRepo;
-
-	public BookServiceImpl(BookRepository bookRepo) {
-		super();
-		this.bookRepo = bookRepo;
-	}
 
 	@Override
 	public BookDto create(BookDto bookDto) {
@@ -54,13 +50,13 @@ public class BookServiceImpl implements BookService {
 				.withMatcher("author", GenericPropertyMatcher::contains);
 		Example<Book> example = Example.of(book, matcher);
 		List<Book> books = bookRepo.findAll(example);
-		return books.stream().map(this::convertModelToDto).collect(Collectors.toList());
+		return books.stream().map(this::convertModelToDto).toList();
 	}
 
 	@Override
 	public List<BookDto> findAll() {
 		List<Book> books = bookRepo.findAll();
-		return books.stream().map(this::convertModelToDto).collect(Collectors.toList());
+		return books.stream().map(this::convertModelToDto).toList();
 	}
 
 	@Override
@@ -84,7 +80,8 @@ public class BookServiceImpl implements BookService {
 	}
 
 	private Book findBookById(Long id) {
-		return bookRepo.findById(id).orElseThrow(() -> new BookNotFoundException(id));
+		return bookRepo.findById(id)
+				.orElseThrow(() -> new BookNotFoundException(id));
 	}
 
 	private BookDto convertModelToDto(Book book) {

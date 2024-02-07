@@ -6,10 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Setter
 @Getter
 @NoArgsConstructor
-public class BookSearchRequest {
+public class BookSearchRequest implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 502019274962679117L;
 
 	@Pattern(regexp = BookConstants.ISBN_REGEX, message = "Invalid isbn query")
 	private String isbn;
