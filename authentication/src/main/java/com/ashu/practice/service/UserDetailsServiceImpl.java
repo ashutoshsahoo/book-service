@@ -1,11 +1,17 @@
 package com.ashu.practice.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import com.ashu.practice.dto.SignupRequest;
+import com.ashu.practice.dto.UpdatePasswordRequest;
+import com.ashu.practice.dto.UserDto;
+import com.ashu.practice.dto.UserUpdateRequest;
+import com.ashu.practice.exception.*;
+import com.ashu.practice.model.Role;
+import com.ashu.practice.model.RoleType;
+import com.ashu.practice.model.UserDao;
+import com.ashu.practice.model.UserDetailsImpl;
+import com.ashu.practice.repository.RoleRepository;
+import com.ashu.practice.repository.UserRepository;
+import com.ashu.practice.utils.CacheConstants;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,22 +26,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ashu.practice.dto.SignupRequest;
-import com.ashu.practice.dto.UpdatePasswordRequest;
-import com.ashu.practice.dto.UserDto;
-import com.ashu.practice.dto.UserUpdateRequest;
-import com.ashu.practice.exception.EmailAlreadyExistsException;
-import com.ashu.practice.exception.EmailNotFoundException;
-import com.ashu.practice.exception.RoleDoesNotExistException;
-import com.ashu.practice.exception.UserNotFoundException;
-import com.ashu.practice.exception.UsernameAlreadyExistsException;
-import com.ashu.practice.model.Role;
-import com.ashu.practice.model.RoleType;
-import com.ashu.practice.model.UserDao;
-import com.ashu.practice.model.UserDetailsImpl;
-import com.ashu.practice.repository.RoleRepository;
-import com.ashu.practice.repository.UserRepository;
-import com.ashu.practice.utils.CacheConstants;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsInternalService {

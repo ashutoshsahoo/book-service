@@ -1,11 +1,10 @@
 package com.ashu.practice.repository;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.ashu.practice.model.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.ashu.practice.model.Book;
+import java.util.List;
+import java.util.Optional;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 

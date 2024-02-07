@@ -1,25 +1,22 @@
 package com.ashu.practice.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
+import com.ashu.practice.dto.BookDto;
+import com.ashu.practice.exception.BookNotFoundException;
+import com.ashu.practice.model.Book;
+import com.ashu.practice.model.Book.BookBuilder;
+import com.ashu.practice.repository.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.ashu.practice.dto.BookDto;
-import com.ashu.practice.exception.BookNotFoundException;
-import com.ashu.practice.model.Book;
-import com.ashu.practice.model.Book.BookBuilder;
-import com.ashu.practice.repository.BookRepository;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class BookServiceTests {

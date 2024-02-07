@@ -1,31 +1,35 @@
 package com.ashu.practice.config;
 
+import jakarta.servlet.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.Filter;
+import java.util.Collections;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @EnableCaching
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
     @Autowired
     private AuthenticationEntryPointImpl authenticationEntryPoint;
@@ -43,48 +47,49 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private Filter authenticationTokenFilter;
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
     }
 
-    @Override
-    protected void configure(HttpSecurity httpSecurity) throws Exception {
+    @Bean
+    public SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
 
         List<String> permittedPathsList = securityConfigProperties.getPaths() != null
                 ? securityConfigProperties.getPaths().getPermitted()
-                : null;
-        if (permittedPathsList != null && !permittedPathsList.isEmpty()) {
-            String permittedPaths = convertPathsToString(permittedPathsList);
-            httpSecurity.authorizeRequests().antMatchers(permittedPaths).permitAll();
-        }
+                : Collections.emptyList();
+        String permittedPaths = convertPathsToString(permittedPathsList);
+        httpSecurity.authorizeHttpRequests(auth -> auth.requestMatchers(permittedPaths).permitAll());
 
         // @formatter:off
-        httpSecurity.csrf().disable()
-                .authorizeRequests()
-                .requestMatchers(EndpointRequest.to("health")).permitAll()
-                .anyRequest().authenticated().and()
-                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+        httpSecurity.authorizeHttpRequests(auth ->
+                        auth.requestMatchers(EndpointRequest.to("health"))
+                                .permitAll()
+                .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
+                .exceptionHandling(handler-> handler.authenticationEntryPoint(authenticationEntryPoint))
+                .sessionManagement(sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         // @formatter:on
 
         httpSecurity.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        return httpSecurity.build();
     }
 
-    @Override
-    public void configure(WebSecurity web) {
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
         List<String> ignoredPathsList = securityConfigProperties.getPaths() != null
                 ? securityConfigProperties.getPaths().getIgnored()
-                : null;
-        if (ignoredPathsList != null && !ignoredPathsList.isEmpty()) {
-            String ignoredPaths = convertPathsToString(ignoredPathsList);
-            web.ignoring().antMatchers(ignoredPaths);
-        }
+                : Collections.emptyList();
+        String ignoredPaths = convertPathsToString(ignoredPathsList);
+        return web -> web.ignoring().requestMatchers(ignoredPaths);
     }
 
     private String convertPathsToString(List<String> paths) {

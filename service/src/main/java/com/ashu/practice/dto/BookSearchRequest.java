@@ -1,9 +1,7 @@
 package com.ashu.practice.dto;
 
-import javax.validation.constraints.Pattern;
-
 import com.ashu.practice.util.BookConstants;
-
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

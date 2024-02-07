@@ -1,5 +1,17 @@
 package com.ashu.practice.service;
 
+import com.ashu.practice.config.JwtConfigProperties;
+import com.ashu.practice.dto.LoginResponse;
+import com.ashu.practice.model.UserDetailsImpl;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Service;
+
+import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -8,25 +20,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.crypto.SecretKey;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Service;
-
-import com.ashu.practice.config.JwtConfigProperties;
-import com.ashu.practice.dto.LoginResponse;
-import com.ashu.practice.model.UserDetailsImpl;
-
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -43,7 +36,8 @@ public class JwtTokenServiceImpl implements JwtTokenInternalService {
 	public Optional<String> getUsernameFromToken(String token) {
 		String username = null;
 		try {
-			username = Jwts.parserBuilder().setSigningKey(jwtConfigProperties.getSecret().getBytes()).build()
+
+			username = Jwts.parser().setSigningKey(jwtConfigProperties.getSecret().getBytes()).build()
 					.parseClaimsJws(token).getBody().getSubject();
 		} catch (SignatureException e) {
 			log.error("Invalid JWT signature: {}", e.getMessage());

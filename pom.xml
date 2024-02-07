@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.5</version>
+        <version>3.2.2</version>
         <relativePath/>
     </parent>
 
@@ -25,11 +25,11 @@
     </modules>
 
     <properties>
-        <revision>2.0.0</revision>
+        <revision>3.0.0</revision>
         <java.version>17</java.version>
-        <jib.version>3.3.0</jib.version>
-        <jwt.version>0.11.5</jwt.version>
-        <hazelcast.version>5.1.4</hazelcast.version>
+        <jib.version>3.4.0</jib.version>
+        <jwt.version>0.12.5</jwt.version>
+        <hazelcast.version>5.3.6</hazelcast.version>
         <hazelcast.client.version>3.12.13</hazelcast.client.version>
         <hazelcast.kubernetes.version>2.2.3</hazelcast.kubernetes.version>
         <docker.image.name>book-service</docker.image.name>
@@ -57,13 +57,6 @@
                 <groupId>com.hazelcast</groupId>
                 <artifactId>hazelcast-kubernetes</artifactId>
                 <version>${hazelcast.kubernetes.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

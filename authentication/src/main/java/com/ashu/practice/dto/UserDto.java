@@ -1,10 +1,10 @@
 package com.ashu.practice.dto;
 
-import java.io.Serializable;
-import java.util.Set;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor

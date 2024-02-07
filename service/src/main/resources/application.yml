@@ -1,6 +1,14 @@
 client:
   auth-service-url: http://localhost:8085/api/v1/auth
 
+security:
+  paths:
+    ignored:
+      #     - /h2-console/**
+      - /static/**
+    permitted:
+      - /auth/**
+
 logging:
   level:
     root: info

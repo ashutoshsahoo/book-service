@@ -7,8 +7,9 @@ jwt:
 
 security:
   paths:
-#    ignored:
+    ignored:
 #     - /h2-console/**
+     - /static/**
     permitted:
       - /auth/**
 
