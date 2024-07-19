@@ -9,3 +9,6 @@ CREATE TABLE "book"
    "name" VARCHAR (30) NOT NULL
 );
 ALTER TABLE "book" ADD UNIQUE ("isbn");
+
+-- Set the sequence ownership to the id column, this will delete the sequence when we drop the table or remove column
+ALTER SEQUENCE book_id_sequence OWNED BY book.id;
