@@ -13,20 +13,15 @@ import java.util.List;
 @NoArgsConstructor
 public class SecurityConfigProperties {
 
-	private Paths paths;
+    private Paths paths;
 
-	@Data
-	@NoArgsConstructor
-	@ConfigurationProperties(prefix = "paths")
-	public static class Paths {
-		/*
-		 * List of allowed/permitted paths.
-		 */
-		private List<String> permitted;
-
-		/*
-		 * List of ignored paths.
-		 */
-		private List<String> ignored;
-	}
+    @Data
+    @NoArgsConstructor
+    @ConfigurationProperties(prefix = "paths")
+    public static class Paths {
+        /*
+         * List of allowed/permitted paths.
+         */
+        private List<String> permitted;
+    }
 }

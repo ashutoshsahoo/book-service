@@ -1,32 +1,27 @@
 package com.ashu.practice.model;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
-import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CustomAuthorityDeserializer extends JsonDeserializer<Object> {
+public class CustomAuthorityDeserializer extends ValueDeserializer<Object> {
 
 	@Override
-	public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
-		JsonNode jsonNode = mapper.readTree(jp);
+	public Object deserialize(JsonParser jp, DeserializationContext ctxt) {
+		JsonNode jsonNode =ctxt.readTree(jp);
 		List<GrantedAuthority> grantedAuthorities = new LinkedList<>();
 
-		Iterator<JsonNode> elements = jsonNode.elements();
-		while (elements.hasNext()) {
-			JsonNode next = elements.next();
-			JsonNode authority = next.get("authority");
-			grantedAuthorities.add(new SimpleGrantedAuthority(authority.asText()));
-		}
+        for (JsonNode next : jsonNode) {
+            JsonNode authority = next.get("authority");
+            grantedAuthorities.add(new SimpleGrantedAuthority(authority.stringValue()));
+        }
 		return grantedAuthorities;
 	}
 }

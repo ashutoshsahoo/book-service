@@ -8,8 +8,8 @@ import com.ashu.practice.repository.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
@@ -19,9 +19,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BookServiceTests {
+class BookServiceTests {
 
-	@Mock
+	@MockitoBean
 	private BookRepository mockRepository;
 
 	@InjectMocks
@@ -40,7 +40,7 @@ public class BookServiceTests {
 	}
 
 	@Test
-	void findById_OK() throws Exception {
+	void findById_OK() {
 		Book mockBook = Book.builder().id(1L).isbn("0123456789867").name("test name").author("test author").build();
 		when(mockRepository.findById(1L)).thenReturn(Optional.of(mockBook));
 		BookDto bookResponse = bookService.findById(1L);
@@ -49,7 +49,7 @@ public class BookServiceTests {
 	}
 
 	@Test
-	void findById_NotFound() throws Exception {
+	void findById_NotFound() {
 		when(mockRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
 		assertThrows(BookNotFoundException.class, () -> bookService.findById(1L));
 	}

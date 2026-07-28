@@ -1,25 +1,25 @@
 package com.ashu.practice.config;
 
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
-
-import java.time.Duration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 public class ClientConfiguration {
 
 	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder builder, ClientConfigProperties clientConfigProperties) {
-		// @formatter:off
-		return builder
-				.defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
-				.defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-				.rootUri(clientConfigProperties.getAuthServiceUrl())
-				.setReadTimeout(Duration.ofSeconds(10))
+	public RestClient restClient( ClientConfigProperties clientConfigProperties) {
+		return RestClient.builder()
+				// Enable request-response logging
+				.requestFactory(new HttpComponentsClientHttpRequestFactory())
+				//Globally Set Header - Once
+				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.baseUrl(clientConfigProperties.getAuthServiceUrl())
 				.build();
-		// @formatter:on
 	}
+
 }

@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping(path = "/auth", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/api/auth", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationController {
@@ -32,7 +32,7 @@ public class AuthenticationController {
 
 	@PostMapping("/signin")
 	public ResponseEntity<LoginResponse> createToken(@RequestBody @Valid LoginRequest request) {
-		log.debug("signing in with username=" + request.getUsername());
+        log.debug("signing in with username={}", request.getUsername());
 		Authentication authentication = authManager
 				.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -41,7 +41,7 @@ public class AuthenticationController {
 
 	@PostMapping(value = "/signup")
 	public ResponseEntity<Void> saveUser(@RequestBody @Valid SignupRequest request) {
-		log.debug("signing up with username=" + request.getUsername());
+        log.debug("signing up with username={}", request.getUsername());
 		userDetailsService.save(request);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
@@ -57,7 +57,7 @@ public class AuthenticationController {
 	// TODO: Secure this end point
 	@GetMapping(value = "/{username}")
 	public ResponseEntity<UserDetailsImpl> getUserDetails(@PathVariable(name = "username") String username) {
-		log.debug("getUserDetails for username=" + username);
+        log.debug("getUserDetails for username={}", username);
 		UserDetailsImpl user = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
 		return ResponseEntity.ok(user);
 	}

@@ -69,6 +69,8 @@ spec:
               value: kubernetes
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres-service/postgres
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: org.postgresql.Driver
             - name: SPRING_FLYWAY_LOCATIONS
               value: classpath:db/migration/postgresql
             - name: SPRING_DATASOURCE_USERNAME
@@ -90,13 +92,13 @@ spec:
                   key: jwt_secret
           readinessProbe:
             httpGet:
-              path: /api/v1/actuator/health/readiness
+              path: /actuator/health/readiness
               port: http
             initialDelaySeconds: 140
             timeoutSeconds: 5
           livenessProbe:
             httpGet:
-              path: /api/v1/actuator/health/liveness
+              path: /actuator/health/liveness
               port: http
             initialDelaySeconds: 150
             timeoutSeconds: 10

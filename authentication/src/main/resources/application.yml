@@ -1,48 +1,64 @@
-jwt:
- audience: myapp
- issuer: mycompanyname
- secret: 4ao25ZPL/aC3lqRuDoj9RsuxLq+TtgkSAGkXFQ==jucr3j0SwCaCzNlePozoUIXl
- token-validity: 18000000 # 5*60*60*1000
- type: JWT
-
-security:
-  paths:
-    ignored:
-#     - /h2-console/**
-     - /static/**
-    permitted:
-      - /auth/**
-
-logging:
-  level:
-    root: info
-    com.ashu.practice: debug
-#    com.hazelcast: WARN
-    #org.springframework.security.web: debug
-    #org.springframework.cache: trace
 server:
-  servlet:
-    context-path: /api/v1
   port: 8085
 
 spring:
   application:
     name: authentication-service
-#  datasource:
-#    url: jdbc:postgresql://localhost/postgres
-#    username: postgres
-#    password: changeme
-#  h2:
-#    console:
-#      enabled: true
-#  jpa:
-#    show-sql: true
+  datasource:
+      driver-class-name: org.h2.Driver
+#      driver-class-name: org.postgresql.Driver
+#      url: jdbc:postgresql://localhost/postgres
+#      username: postgres
+#      password: changeme
+      hikari:
+        # Minimum number of idle connections waiting in the pool
+        minimum-idle: 2
+        # Maximum number of active connections the pool will keep
+        maximum-pool-size: 5
+  #  h2:
+  #    console:
+  #      enabled: true
+
   flyway:
-#    enabled: false
+    enabled: true
     locations:
-    - classpath:db/migration/h2
+      - classpath:db/migration/{vendor}
   main:
-   banner-mode: off
+    banner-mode: off
+  threads:
+    virtual:
+      enabled: true # Enable max DB and client connections
+  mvc:
+    problemdetails:
+      enabled: true
+
+
+  jpa:
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+#    show-sql: true
+
+    properties:
+      # Fetches 100 rows at a time (a safe, balanced default)
+      hibernate.jdbc.fetch_size: 100
+      # Tells Hibernate not to waste performance checking autocommit status
+      #      hibernate.connection.provider_disables_autocommit: true
+
+      hibernate.show_sql: true
+      hibernate.format_sql: true
+      hibernate.use_sql_comments: true
+      hibernate.jdbc.time_zone: UTC
+
+
+logging:
+  level:
+    root: info
+    com.ashu.practice: debug
+    #    com.hazelcast: WARN
+    #    org.springframework.security: trace
+    #org.springframework.cache: trace
+    com.hazelcast.system.logo: OFF
+#    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: TRACE
 
 management:
   endpoints:
@@ -54,3 +70,17 @@ hazelcast:
   instance-name: authentication-service-instance
   map-name: authentication-service
   cluster-name: auth-service
+
+jwt:
+  audience: myapp
+  issuer: mycompanyname
+  secret: 4ao25ZPL/aC3lqRuDoj9RsuxLq+TtgkSAGkXFQ==jucr3j0SwCaCzNlePozoUIXl
+  token-validity: 18000000 # 5*60*60*1000
+  type: JWT
+
+security:
+  paths:
+    permitted:
+      - /static/**
+      - /api/auth/**
+      - /error

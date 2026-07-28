@@ -61,7 +61,7 @@ spec:
             - name: SPRING_PROFILES_ACTIVE
               value: prod
             - name: CLIENT_AUTH_SERVICE_URL
-              value: http://auth-service/api/v1/auth
+              value: http://auth-service/api/auth
             - name: HAZELCAST_SERVICE_NAME
               value: hazelcast-book-service
             - name: HAZELCAST_NAMESPACE
@@ -70,6 +70,8 @@ spec:
               value: kubernetes
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres-service/booksdb
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              value: org.postgresql.Driver
             - name: SPRING_FLYWAY_LOCATIONS
               value: classpath:db/migration/postgresql
             - name: SPRING_DATASOURCE_USERNAME
@@ -84,13 +86,13 @@ spec:
                   key: password
           readinessProbe:
             httpGet:
-              path: /api/v1/actuator/health/readiness
+              path: /actuator/health/readiness
               port: http
             initialDelaySeconds: 130
             timeoutSeconds: 5
           livenessProbe:
             httpGet:
-              path: /api/v1/actuator/health/liveness
+              path: /actuator/health/liveness
               port: http
             initialDelaySeconds: 150
             timeoutSeconds: 10

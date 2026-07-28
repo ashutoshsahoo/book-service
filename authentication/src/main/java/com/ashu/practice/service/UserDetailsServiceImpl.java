@@ -13,6 +13,7 @@ import com.ashu.practice.repository.RoleRepository;
 import com.ashu.practice.repository.UserRepository;
 import com.ashu.practice.utils.CacheConstants;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -45,7 +46,7 @@ public class UserDetailsServiceImpl implements UserDetailsInternalService {
     @Cacheable(cacheNames = {CacheConstants.USERS_CACHE}, key = "#username")
     @Transactional
     @Override
-    public UserDetails loadUserByUsername(String username) {
+    public UserDetails loadUserByUsername(@NonNull String username) {
         UserDao userDao = findByUsername(username);
         return convertDaoToUserDetails(userDao);
     }

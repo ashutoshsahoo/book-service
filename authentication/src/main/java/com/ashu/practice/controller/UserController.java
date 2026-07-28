@@ -15,53 +15,54 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping(path = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/api/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @RequiredArgsConstructor
 public class UserController {
 
-	private final UserDetailsInternalService userService;
+    private final UserDetailsInternalService userService;
 
-	@GetMapping
-	@PreAuthorize("hasRole('ADMIN')")
-	public Page<UserDto> viewAll(Pageable pageable) {
-		log.debug("User viewAll request received");
-		return userService.viewAll(pageable);
-	}
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public Page<UserDto> viewAll(Pageable pageable) {
+        log.debug("User viewAll request received");
+        return userService.viewAll(pageable);
+    }
 
-	@GetMapping(path = "/{username}")
-	@PreAuthorize("#username == principal.username or hasRole('ADMIN')")
-	public UserDto viewByUsername(@PathVariable(name = "username") String username) {
-		log.debug("User viewByUsername request received for user=" + username);
-		return userService.viewByUsername(username);
-	}
+    @GetMapping(path = "/{username}")
+    @PreAuthorize("#username == principal.username or hasRole('ADMIN')")
+    public UserDto viewByUsername(@PathVariable(name = "username") String username) {
+        log.debug("User viewByUsername request received for user={}", username);
+        return userService.viewByUsername(username);
+    }
 
-	public UserDto viewByEmail(String email) {
-		// TODO: Implementation pending.
-		return null;
-	}
+    @GetMapping(path = "/email/{email}")
+    @PreAuthorize("#username == principal.username or hasRole('ADMIN')")
+    public UserDto viewByEmail(@PathVariable(name = "email") String email) {
+        return userService.viewByEmail(email);
+    }
 
-	@PutMapping(path = "/{username}")
-	@PreAuthorize("#username == principal.username or hasRole('ADMIN')")
-	public UserDto update(@PathVariable(name = "username") String username,
-			@RequestBody @Valid UserUpdateRequest request) {
-		log.debug("User update request received for user=" + username);
-		return userService.update(username, request);
-	}
+    @PutMapping(path = "/{username}")
+    @PreAuthorize("#username == principal.username or hasRole('ADMIN')")
+    public UserDto update(@PathVariable(name = "username") String username,
+                          @RequestBody @Valid UserUpdateRequest request) {
+        log.debug("Update user request received for user={}", username);
+        return userService.update(username, request);
+    }
 
-	@PatchMapping(path = "/{username}")
-	@PreAuthorize("#username == principal.username")
-	public void changePassword(@PathVariable(name = "username") String username,
-			@RequestBody @Valid UpdatePasswordRequest request) {
-		log.debug("User update request received for user=" + username);
-		userService.changePassword(username, request);
-	}
+    @PatchMapping(path = "/{username}")
+    @PreAuthorize("#username == principal.username")
+    public void changePassword(@PathVariable(name = "username") String username,
+                               @RequestBody @Valid UpdatePasswordRequest request) {
+        log.debug("Change password request received for user={}", username);
+        userService.changePassword(username, request);
+    }
 
-	@DeleteMapping(path = "/{username}")
-	@PreAuthorize("#username == principal.username or hasRole('ADMIN')")
-	public void delete(@PathVariable(name = "username") String username) {
-		log.debug("User delete request received for user=" + username);
-		userService.delete(username);
-	}
+    @DeleteMapping(path = "/{username}")
+    @PreAuthorize("#username == principal.username or hasRole('ADMIN')")
+    public void delete(@PathVariable(name = "username") String username) {
+        log.debug("Delete user request received for user={}", username);
+        userService.delete(username);
+    }
 
 }

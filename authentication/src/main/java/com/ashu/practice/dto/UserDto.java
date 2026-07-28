@@ -3,6 +3,7 @@ package com.ashu.practice.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -10,7 +11,8 @@ import java.util.Set;
 @NoArgsConstructor
 public class UserDto implements Serializable {
 
-	private static final long serialVersionUID = -2262958775856445575L;
+	@Serial
+    private static final long serialVersionUID = -2262958775856445575L;
 
 	private String username;
 

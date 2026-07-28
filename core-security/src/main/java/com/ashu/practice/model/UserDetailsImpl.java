@@ -1,13 +1,13 @@
 package com.ashu.practice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.Serial;
 import java.util.Collection;

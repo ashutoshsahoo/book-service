@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -13,7 +12,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Data
+@Setter
+@Getter
+@ToString
 @NoArgsConstructor
 @Table(name = "USERS", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
 		@UniqueConstraint(columnNames = "email") })
@@ -44,6 +45,7 @@ public class UserDao implements Serializable {
 
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "USER_ROLES", joinColumns = @JoinColumn(name = "USER_ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+	@ToString.Exclude
 	private Set<Role> roles = new HashSet<>();
 
 	public UserDao(String username, String email, String password, Set<Role> roles) {
