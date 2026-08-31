@@ -329,7 +329,7 @@ Security enabled.
 
 Install:
 
-- JDK 21+
+- JDK 25
 - Git
 - Gradle or Maven, depending on the project build configuration
 - An IDE such as IntelliJ IDEA or VS Code
