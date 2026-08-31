@@ -1,100 +1,781 @@
-# Book Service
+# Book Service — Spring Boot & Spring Security
 
-Sample project to use spring boot with
+A Spring Boot REST API demonstrating **secure API development using Spring Security**, authentication, authorization,
+JWT-based security, and layered application architecture.
 
-- Spring security and JWT
-- Spring data jpa
-- flyway
-- postgresql
-- h2
-- hazelcast
-- jib maven plugin
-- kubernetes
+The project provides a practical reference for building a backend service where APIs are protected using authentication
+and role-based authorization.
 
-## Build the project
+---
 
-Ensure kubernetes and docker environment variables set.
+## 🎯 Problem Statement
 
-```shell
+Modern backend services cannot expose business APIs without considering authentication and authorization.
 
-mvn clean package -DskipTests
+For example, a Book Management API may expose operations such as:
 
+- View books
+- Create books
+- Update books
+- Delete books
+
+However, not every operation should be available to every user.
+
+A typical requirement could be:
+
+```text
+                     Book Service
+
+                    ┌─────────────┐
+                    │    Client   │
+                    └──────┬──────┘
+                           │
+                           ▼
+                  ┌─────────────────┐
+                  │ Authentication  │
+                  │ & Authorization │
+                  └────────┬────────┘
+                           │
+               ┌───────────┴───────────┐
+               │                       │
+               ▼                       ▼
+          Read Operations         Write Operations
+          USER / ADMIN               ADMIN
+               │                       │
+               └───────────┬───────────┘
+                           ▼
+                     Book Service
 ```
 
-## Enable Hazelcast Kubernetes discovery
+The problem this project addresses is:
 
-```shell
+> **How do we build a Spring Boot REST service where authentication and authorization are enforced consistently before
+requests reach the business layer?**
 
-kubectl apply -f kubernetes-rbac.yaml
+The project demonstrates how Spring Security can be integrated into a REST API to establish a security boundary between
+external clients and application functionality.
+
+---
+
+# 🏗️ High-Level Architecture
+
+The application follows a layered architecture with Spring Security acting as the security boundary.
+
+```mermaid
+flowchart TB
+
+    Client["REST Client<br/>Postman / Browser / Application"]
+
+    Security["Spring Security Filter Chain<br/>Authentication + Authorization"]
+
+    Controller["REST Controller"]
+
+    Service["Service Layer<br/>Business Logic"]
+
+    Repository["Repository Layer<br/>Data Access"]
+
+    DB[("Database")]
+
+    Client -->|HTTP Request + Credentials / JWT| Security
+    Security -->|Authorized Request| Controller
+    Controller --> Service
+    Service --> Repository
+    Repository --> DB
+
+    Security -.->|401 Unauthorized| Client
+    Security -.->|403 Forbidden| Client
 ```
 
-## Deploy application
+### Request Flow
 
-```shell
-
-kubectl apply -f secrets.yaml
-kubectl apply -f postgres-deployment.yaml
-kubectl apply -f authentication/deployment.yaml
-kubectl apply -f service/deployment.yaml
-
+```text
+Client
+  │
+  │ HTTP Request
+  │
+  ▼
+Spring Security Filter Chain
+  │
+  ├── Authentication
+  │
+  ├── Token Validation
+  │
+  ├── Authorization
+  │
+  ▼
+Controller
+  │
+  ▼
+Service
+  │
+  ▼
+Repository
+  │
+  ▼
+Database
 ```
 
-It will take some time to start the application, To check application status:
+The important architectural principle is:
 
-```shell
+> **Security is enforced before the request reaches the application business logic.**
 
-kubectl get po,svc
+---
 
+# 🔐 Security Architecture
+
+Spring Security provides the security boundary around the REST APIs.
+
+```text
+                         HTTP Request
+                              │
+                              ▼
+                 ┌────────────────────────┐
+                 │ Spring Security Filter │
+                 │        Chain            │
+                 └────────────┬───────────┘
+                              │
+                     ┌────────┴────────┐
+                     │                 │
+                     ▼                 ▼
+                Authenticated?    Token Valid?
+                     │                 │
+                     └────────┬────────┘
+                              ▼
+                       Authorization
+                              │
+                    ┌─────────┴─────────┐
+                    │                   │
+                    ▼                   ▼
+                 Allowed             Denied
+                    │                   │
+                    ▼                   ├──► 401
+               Controller              │
+                                       └──► 403
 ```
 
-The output should be like:
+### Authentication
 
-```shell
+Authentication answers:
 
-NAME                                READY   STATUS    RESTARTS   AGE
-pod/auth-service-7459958db-kd58f    1/1     Running   0          6m25s
-pod/auth-service-7459958db-sjvsb    1/1     Running   0          6m25s
-pod/book-service-776bdbf7bb-f9jnq   1/1     Running   0          5m59s
-pod/book-service-776bdbf7bb-hcqx2   1/1     Running   0          5m59s
-pod/postgres-779fdfc844-bxt8n       1/1     Running   0          71m
+> **Who is the caller?**
 
-NAME                             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-service/auth-service             NodePort    10.102.102.133   <none>        80:31001/TCP   6m25s
-service/book-service             NodePort    10.105.109.185   <none>        80:31002/TCP   5m59s
-service/hazelcast-auth-service   ClusterIP   10.105.22.147    <none>        5701/TCP       6m25s
-service/hazelcast-book-service   ClusterIP   10.103.55.1      <none>        5701/TCP       5m59s
-service/kubernetes               ClusterIP   10.96.0.1        <none>        443/TCP        35d
-service/postgres-service         ClusterIP   10.105.241.167   <none>        5432/TCP       71m
+### Authorization
 
+Authorization answers:
+
+> **What is the caller allowed to do?**
+
+Keeping these concepts separate is fundamental to designing secure APIs.
+
+---
+
+# 🪪 JWT Authentication
+
+When JWT authentication is enabled, the client sends a token with the request:
+
+```http
+Authorization: Bearer <JWT>
 ```
 
-## Test application
+The request flow becomes:
 
-Use the provided postman collection to test the application.
-
-## Check database setup with pgAdmin4
-
-```shell
-
-kubectl apply -f pgadmin4-deployment.yaml
-
+```text
+Client
+  │
+  │ Authorization: Bearer JWT
+  ▼
+Spring Security
+  │
+  ├── Extract JWT
+  ├── Validate token
+  ├── Validate signature
+  ├── Extract user/roles
+  └── Build SecurityContext
+          │
+          ▼
+       Controller
 ```
 
-Open [http://KUBERNETES_NODE_IP:31000](http://localhost:31000) in browser and login with `pgadmin@example.org`
-and `changeme`. Select servers (on left pane) and input password as `changeme`.
+The application can then use the authenticated identity and authorities when evaluating access to protected endpoints.
 
-## Clean up system
+---
 
-```shell
+# 👥 Authentication vs Authorization
 
-kubectl delete -f service/deployment.yaml
-kubectl delete -f authentication/deployment.yaml
-kubectl delete -f pgadmin4-deployment.yaml
-kubectl delete -f postgres-deployment.yaml
-kubectl delete -f secrets.yaml
+A secure API typically needs both.
 
+### Authentication
+
+```text
+Who are you?
+      │
+      ▼
+JWT / Credentials
+      │
+      ▼
+Authenticated User
 ```
 
-## Script to start and stop the deployment
+### Authorization
 
-Use the provided scripts `start-deployment.sh` and `stop-deployment.sh` to start and stop the deployment respectively.
+```text
+What can you do?
+      │
+      ▼
+Roles / Authorities
+      │
+      ▼
+Endpoint Access
+```
+
+Example:
+
+```text
+USER
+ ├── GET /books
+ └── GET /books/{id}
+
+ADMIN
+ ├── GET    /books
+ ├── POST   /books
+ ├── PUT    /books/{id}
+ └── DELETE /books/{id}
+```
+
+> Adjust the exact endpoint/role mapping above to match the current security configuration in the project.
+
+---
+
+# 🧩 Application Architecture
+
+The project follows a conventional Spring Boot layered architecture:
+
+```text
+Controller
+    │
+    ▼
+Service
+    │
+    ▼
+Repository
+    │
+    ▼
+Database
+```
+
+### Controller
+
+Responsible for:
+
+- HTTP endpoints
+- Request mapping
+- Request/response handling
+- Validation boundaries
+
+### Service
+
+Responsible for:
+
+- Business logic
+- Transaction boundaries
+- Domain operations
+
+### Repository
+
+Responsible for:
+
+- Database access
+- Persistence operations
+- Query execution
+
+### Security Layer
+
+Cross-cuts the request path before the controller:
+
+```text
+Security
+    │
+    ▼
+Controller
+    │
+    ▼
+Service
+    │
+    ▼
+Repository
+```
+
+---
+
+# 🧰 Technology Stack
+
+| Technology      | Purpose                        |
+|-----------------|--------------------------------|
+| Java            | Application development        |
+| Spring Boot     | Backend framework              |
+| Spring Web      | REST APIs                      |
+| Spring Security | Authentication & authorization |
+| JWT             | Stateless authentication       |
+| Spring Data     | Persistence                    |
+| Gradle / Maven  | Build automation               |
+| JUnit           | Testing                        |
+
+The repository is a Java-based Spring Boot project and is described on your GitHub profile as a book service with Spring
+Security enabled.
+
+---
+
+# 📋 Prerequisites
+
+Install:
+
+- JDK 21+
+- Git
+- Gradle or Maven, depending on the project build configuration
+- An IDE such as IntelliJ IDEA or VS Code
+- Postman or another REST client
+
+Verify Java:
+
+```bash
+java -version
+```
+
+---
+
+# 🚀 Getting Started
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/ashutoshsahoo/book-service.git
+
+cd book-service
+```
+
+---
+
+## 2. Build the application
+
+```bash
+mvn clean package
+```
+
+---
+
+## 3. Start the application
+
+### Gradle
+
+```bash
+mvn spring-boot:run
+```
+
+The application will start using the configured Spring Boot server port.
+
+---
+
+# 🧪 API Testing
+
+Use Postman, curl, or another REST client to interact with the API.
+
+A typical API workflow is:
+
+```text
+1. Authenticate
+       │
+       ▼
+2. Obtain JWT
+       │
+       ▼
+3. Send JWT in Authorization header
+       │
+       ▼
+4. Access protected Book APIs
+```
+
+Example:
+
+```http
+Authorization: Bearer <JWT>
+```
+
+---
+
+# 📚 Book API
+
+The service provides APIs for managing books.
+
+Typical REST operations include:
+
+| Operation | HTTP Method | Purpose        |
+|-----------|-------------|----------------|
+| Create    | `POST`      | Create a book  |
+| Read      | `GET`       | Retrieve books |
+| Update    | `PUT`       | Update a book  |
+| Delete    | `DELETE`    | Delete a book  |
+
+Example REST model:
+
+```json
+{
+  "title": "Designing Data-Intensive Applications",
+  "author": "Martin Kleppmann"
+}
+```
+
+> The exact endpoint paths and request/response models should be kept synchronized with the controller implementation.
+
+---
+
+# 🔒 HTTP Security Responses
+
+A secure API should clearly distinguish authentication and authorization failures.
+
+### `401 Unauthorized`
+
+The client has not successfully authenticated.
+
+Examples:
+
+```text
+Missing token
+Invalid token
+Expired token
+Invalid credentials
+```
+
+### `403 Forbidden`
+
+The client is authenticated but does not have sufficient permissions.
+
+Example:
+
+```text
+Authenticated USER
+        │
+        ▼
+DELETE /books/10
+        │
+        ▼
+403 Forbidden
+```
+
+This distinction is important when designing and troubleshooting secured REST APIs.
+
+---
+
+# 🛡️ Security Principles Demonstrated
+
+This project demonstrates:
+
+- Authentication
+- Authorization
+- JWT-based security
+- Stateless API security
+- Spring Security filter chain
+- Security context
+- Role/authority-based access control
+- Protected REST endpoints
+- HTTP `401` vs `403` handling
+
+---
+
+# 🧪 Testing Strategy
+
+Security-focused testing should cover both successful and unsuccessful scenarios.
+
+### Authentication Tests
+
+```text
+✓ Valid credentials
+✓ Invalid credentials
+✓ Missing credentials
+✓ Invalid JWT
+✓ Expired JWT
+```
+
+### Authorization Tests
+
+```text
+✓ Authorized USER access
+✓ Authorized ADMIN access
+✓ USER attempting ADMIN operation
+✓ Unauthenticated access
+```
+
+### API Tests
+
+```text
+✓ Create book
+✓ Retrieve book
+✓ Update book
+✓ Delete book
+✓ Invalid book request
+✓ Non-existent book
+```
+
+---
+
+# 🔍 Troubleshooting
+
+## Application starts but API returns 401
+
+Check:
+
+```text
+Authorization: Bearer <JWT>
+```
+
+Also verify:
+
+- JWT is valid
+- JWT has not expired
+- Authorization header is present
+- Security configuration permits the endpoint
+
+---
+
+## API returns 403
+
+The request is authenticated, but the authenticated principal does not have the required authority/role.
+
+Check the role/authority contained in the authenticated security context.
+
+---
+
+## Application redirects to `/error`
+
+For REST APIs, unexpected redirects to `/error` can often indicate an exception occurring during request processing or
+security handling.
+
+Check the application logs for the original exception before troubleshooting the `/error` endpoint itself.
+
+---
+
+# 📁 Project Structure
+
+A typical structure for the service is:
+
+```text
+book-service/
+│
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── ...
+│   │   │
+│   │   └── resources/
+│   │       ├── application.yml
+│   │       └── ...
+│   │
+│   └── test/
+│       └── ...
+│
+├── Dockerfile
+├── pom.xml
+└── README.md
+```
+
+---
+
+# 🐳 Containerization
+
+The application can be containerized using Docker.
+
+Example:
+
+```bash
+docker build -t book-service:latest .
+```
+
+Run:
+
+```bash
+docker run \
+  -p 8080:8080 \
+  book-service:latest
+```
+
+For production deployments, consider:
+
+- Non-root containers
+- Multi-stage Docker builds
+- Minimal JRE images
+- Container vulnerability scanning
+- Resource limits
+- Health probes
+- Externalized configuration
+- Secret management
+
+---
+
+# ☸️ Kubernetes — Future Deployment
+
+The service can be extended into a Kubernetes workload:
+
+```text
+                  Kubernetes Cluster
+                         │
+                  ┌──────▼──────┐
+                  │   Service   │
+                  └──────┬──────┘
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+        Spring Boot Pod       Spring Boot Pod
+              │                     │
+              └──────────┬──────────┘
+                         ▼
+                     Database
+```
+
+Potential Kubernetes capabilities include:
+
+- Deployment
+- Service
+- ConfigMap
+- Secret
+- Readiness probe
+- Liveness probe
+- Horizontal Pod Autoscaler
+- Resource requests and limits
+- Ingress / Gateway API
+
+---
+
+# 📈 Production Hardening
+
+For a production-grade Spring Security service, consider adding:
+
+### Security
+
+- OAuth 2.0 / OpenID Connect
+- External Identity Provider
+- Key rotation
+- Refresh-token strategy
+- Fine-grained authorities
+- Method-level security
+- CORS policy
+- CSRF strategy appropriate for the API
+- Rate limiting
+- Audit logging
+
+### Secrets
+
+Do not store:
+
+```text
+JWT secret
+Database password
+API keys
+Private keys
+```
+
+directly in source control.
+
+Use:
+
+- Kubernetes Secrets
+- HashiCorp Vault
+- Cloud secret managers
+- External Secrets Operator
+
+### Observability
+
+Add:
+
+- Spring Boot Actuator
+- Micrometer
+- Prometheus
+- Grafana
+- OpenTelemetry
+- Distributed tracing
+- Structured logging
+
+---
+
+# 🎯 Learning Outcomes
+
+After working through this project, you should understand:
+
+1. How a Spring Boot REST API is structured.
+2. How Spring Security intercepts HTTP requests.
+3. How authentication differs from authorization.
+4. How JWT enables stateless authentication.
+5. How roles/authorities control API access.
+6. How `401` and `403` differ.
+7. How security concerns can be separated from business logic.
+8. How a secured Spring Boot service can be containerized and deployed.
+
+---
+
+# 🚀 Possible Enhancements
+
+The service can be evolved toward a production-grade backend by adding:
+
+```text
+                    API Gateway
+                         │
+                         ▼
+                  ┌─────────────┐
+                  │ Book Service│
+                  └──────┬──────┘
+                         │
+          ┌──────────────┼──────────────┐
+          ▼              ▼              ▼
+       Database      Redis Cache     Kafka
+                                         │
+                                         ▼
+                                  Event Consumers
+```
+
+Potential extensions:
+
+- OAuth2 Resource Server
+- Keycloak / external Identity Provider
+- Redis caching
+- Kafka domain events
+- Outbox pattern
+- PostgreSQL
+- OpenTelemetry
+- Prometheus + Grafana
+- Docker
+- Kubernetes
+- CI/CD
+- Contract testing
+- Testcontainers
+
+---
+
+# ⭐ Key Takeaway
+
+This project demonstrates a fundamental backend engineering principle:
+
+> **Security should be treated as an architectural boundary, not as logic implemented independently inside every
+business operation.**
+
+Spring Security provides that boundary, while the application layers remain focused on their respective
+responsibilities:
+
+```text
+                 Security Boundary
+                        │
+                        ▼
+              ┌─────────────────┐
+              │   Controller    │
+              └────────┬────────┘
+                       ▼
+              ┌─────────────────┐
+              │     Service     │
+              └────────┬────────┘
+                       ▼
+              ┌─────────────────┐
+              │   Repository    │
+              └────────┬────────┘
+                       ▼
+                    Database
+```
+
+This repository serves as a practical reference for building **secure Spring Boot REST APIs with authentication,
+authorization and JWT-based security**.
